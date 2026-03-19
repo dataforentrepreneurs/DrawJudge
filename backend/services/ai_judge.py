@@ -66,16 +66,13 @@ You MUST respond STRICTLY in JSON:
         
         response = await asyncio.to_thread(
             model.generate_content,
-            contents=[instructions, image_parts[0]]
+            contents=[instructions, image_parts[0]],
+            generation_config=genai.GenerationConfig(
+                response_mime_type="application/json",
+            )
         )
         
-        text = response.text
-        if "```json" in text:
-            text = text.split("```json")[1].split("```")[0].strip()
-        elif "```" in text:
-            text = text.split("```")[1].strip()
-            
-        data = json.loads(text)
+        data = json.loads(response.text)
         return AIScoreResponse(
             submission_id=player_id,
             scores=ScoreBreakdown(**data["scores"]),

@@ -4,7 +4,7 @@ from models.schemas import RoomCreateResponse
 
 router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
 
-@router.post("/", response_model=RoomCreateResponse)
+@router.post("", response_model=RoomCreateResponse)
 def create_new_room():
     room = create_room_state()
     return RoomCreateResponse(room_code=room.room_code, host_id=room.host_id)

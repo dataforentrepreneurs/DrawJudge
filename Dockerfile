@@ -1,22 +1,23 @@
-# Use Python 3.11 as the base image for our unified server
-FROM python:3.11-slim
+# Stage 1: Build the React Frontend
+FROM node:20-slim AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend .
+RUN npm run build
 
-# Set standard working directory
+# Stage 2: Configure the FastAPI Backend
+FROM python:3.11-slim
 WORKDIR /app
 
-# Copy the pre-compiled frontend assets
-# Note: Ensure you have run `cd frontend && npm run build` before building the docker image
-COPY ./frontend/dist /app/frontend/dist
+# Copy the built React assets
+COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
-# Copy the backend code
-COPY ./backend /app/backend
-
-# Navigate to backend to install dependencies
+# Copy and setup the backend
+COPY backend /app/backend
 WORKDIR /app/backend
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 8000 (often required or re-mapped by cloud providers like Render)
 EXPOSE 8000
 
-# Command to run the Uvicorn monolithic server mapping host and port
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

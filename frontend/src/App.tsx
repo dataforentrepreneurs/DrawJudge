@@ -3,8 +3,10 @@ import { Palette, Play, Users, ArrowLeft, Loader2, Crown, Trophy } from 'lucide-
 import { QRCodeSVG } from 'qrcode.react';
 import DrawCanvas from './DrawCanvas';
 
-const API_BASE = 'http://localhost:8000/api';
-const WS_BASE = 'ws://localhost:8000/ws/rooms';
+const isDevServer = window.location.port === '5173' || window.location.port === '3000';
+const backendHost = isDevServer ? 'localhost:8000' : window.location.host;
+const API_BASE = `${window.location.protocol}//${backendHost}/api`;
+const WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${backendHost}/ws/rooms`;
 
 function generatePlayerId() {
   const existing = localStorage.getItem('dj_player_id');
@@ -69,7 +71,9 @@ function App() {
   const handleCreateRoom = async () => {
     try {
       const res = await fetch(`${API_BASE}/rooms`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
+      if (!data.room_code) throw new Error("Backend returned empty room_code");
       setRoomCode(data.room_code);
       setPlayerName("Host");
       localStorage.setItem('dj_player_name', "Host");
@@ -129,9 +133,10 @@ function App() {
       {view === 'hostLobby' && (
         <div className="glass-panel flex-col items-center">
           <h2 className="title-giant" style={{fontSize: '2.5rem', marginBottom: '4px'}}>ROOM CODE</h2>
-          <h1 className="title-giant" style={{fontSize: '4rem', color: 'var(--primary)', textShadow: '0 0 20px hsla(320,90%,65%,0.5)'}}>{roomCode}</h1>
+          <h1 style={{fontSize: '4rem', fontWeight: 900, color: 'var(--primary)', textShadow: '0 0 20px hsla(320,90%,65%,0.5)', letterSpacing: '4px'}}>{roomCode}</h1>
+          <p className="subtitle" style={{marginBottom: '0', color: 'hsla(0,0%,100%,0.8)'}}>Open a <b>New Tab</b> and enter this code to Join!</p>
           <div className="mb-4 mt-2 p-4" style={{background: 'white', borderRadius: '16px'}}>
-            <QRCodeSVG value={`http://localhost:5173/?room=${roomCode}`} size={160} />
+            <QRCodeSVG value={`${window.location.origin}/?room=${roomCode}`} size={160} />
           </div>
           
           <div className="flex-row w-full mb-4">
