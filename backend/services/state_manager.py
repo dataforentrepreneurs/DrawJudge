@@ -1,5 +1,6 @@
 from typing import Dict, Optional
 import uuid
+import secrets
 
 class RoomState:
     def __init__(self, room_code: str, host_id: str):
@@ -29,7 +30,7 @@ class RoomState:
 active_rooms: Dict[str, RoomState] = {}
 
 def create_room_state() -> RoomState:
-    room_code = uuid.uuid4().hex[:6].upper()
+    room_code = secrets.token_hex(3).upper()
     host_id = str(uuid.uuid4())
     room = RoomState(room_code, host_id)
     active_rooms[room_code] = room

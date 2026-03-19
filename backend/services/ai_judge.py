@@ -7,7 +7,8 @@ from typing import Dict, List
 from models.schemas import AIScoreResponse, ScoreBreakdown # pyre-ignore
 
 try:
-    import google.generativeai as genai # pyre-ignore
+    from google import genai # pyre-ignore
+    from google.genai import types # pyre-ignore
     HAS_GENAI = True
 except ImportError:
     HAS_GENAI = False
@@ -36,15 +37,14 @@ async def evaluate_single(player_id: str, prompt_text: str, b64_image: str) -> A
         if not HAS_GENAI or not api_key:
             raise ValueError("No Gemini API key found. Using mock fallback.")
             
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        client = genai.Client(api_key=api_key)
         
         # Parse base64
         if "," in b64_image:
             b64_image = b64_image.split(",")[1]
             
         img_data = base64.b64decode(b64_image)
-        image_parts = [{"mime_type": "image/png", "data": img_data}]
+        image_part = types.Part.from_bytes(data=img_data, mime_type="image/png")
         
         instructions = f"""You are 'The Draw Judge', a playful, family-friendly, and slightly eccentric art critic for a multiplayer party game.
 The drawing prompt was: "{prompt_text}"
@@ -65,9 +65,10 @@ You MUST respond STRICTLY in JSON:
 }}"""
         
         response = await asyncio.to_thread(
-            model.generate_content,
-            contents=[instructions, image_parts[0]],
-            generation_config={"response_mime_type": "application/json"}
+            client.models.generate_content,
+            model='gemini-1.5-flash',
+            contents=[instructions, image_part],
+            config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         
         data = json.loads(response.text)
@@ -78,7 +79,7 @@ You MUST respond STRICTLY in JSON:
             comment=data["comment"]
         )
     except Exception as e:
-        print(f"Mocking score for {player_id} due to API/Parser issue: {e}")
+        print(f"Using mock AI judge for {player_id} (API key not provided or error: {e})")
         await asyncio.sleep(2) # Fake processing delay
         return get_mock_score(player_id, prompt_text)
 

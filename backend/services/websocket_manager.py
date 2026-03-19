@@ -17,7 +17,7 @@ class ConnectionManager:
             if websocket in self.active_connections[room_code]:
                 self.active_connections[room_code].remove(websocket)
             if len(self.active_connections[room_code]) == 0:
-                del self.active_connections[room_code]
+                self.active_connections.pop(room_code, None)
 
     async def broadcast_to_room(self, room_code: str, message: dict):
         if room_code in self.active_connections:

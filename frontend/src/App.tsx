@@ -4,6 +4,39 @@ import { QRCodeSVG } from 'qrcode.react';
 import DrawCanvas from './DrawCanvas';
 import mainLogo from './assets/gold.svg';
 
+const playTickSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch(e) {}
+};
+
+const playTadaSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc1 = ctx.createOscillator(); const osc2 = ctx.createOscillator(); const osc3 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc1.frequency.value = 523.25; osc2.frequency.value = 659.25; osc3.frequency.value = 783.99;
+    osc1.type = 'triangle'; osc2.type = 'triangle'; osc3.type = 'triangle';
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
+    osc1.connect(gain); osc2.connect(gain); osc3.connect(gain);
+    gain.connect(ctx.destination);
+    osc1.start(); osc2.start(); osc3.start();
+    osc1.stop(ctx.currentTime + 1.5); osc2.stop(ctx.currentTime + 1.5); osc3.stop(ctx.currentTime + 1.5);
+  } catch(e) {}
+};
+
 const isDevServer = window.location.port === '5173' || window.location.port === '3000';
 const backendHost = isDevServer ? 'localhost:8000' : window.location.host;
 const API_BASE = `${window.location.protocol}//${backendHost}/api`;
@@ -52,6 +85,7 @@ function App() {
       } else if (data.event === 'judging_started') {
         setView('judging');
       } else if (data.event === 'results_ready') {
+        playTadaSound();
         setResults(data.results);
         if (data.leaderboard) {
             const playerList = Object.keys(data.leaderboard).map(pid => ({ id: pid, ...data.leaderboard[pid] }));
@@ -64,6 +98,7 @@ function App() {
 
   useEffect(() => {
     if (view === 'drawing' && timeLeft > 0) {
+      if (timeLeft <= 10) playTickSound();
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     }

@@ -72,6 +72,8 @@ async def websocket_endpoint(
             event = message.get("event")
             
             if event == "start_round":
+                if room.status in ["drawing", "judging"]:
+                    continue
                 mode = message.get("mode", "classic")
                 selected_prompt = random.choice(PROMPTS_LIB)
                 room.start_round(selected_prompt, mode)
