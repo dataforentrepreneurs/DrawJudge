@@ -182,7 +182,7 @@ function App() {
       )}
 
       {view === 'results' && (
-        <div className="flex-col w-full text-center">
+        <div className="flex-col w-full text-center animate-pop-in">
           <div className="glass-panel text-center mb-4 pt-8">
             <Crown size={48} className="text-primary mb-2 w-full" style={{margin: '0 auto'}} />
             <h2 className="title-giant" style={{fontSize: '2.5rem'}}>RESULTS</h2>
@@ -213,7 +213,7 @@ function App() {
       )}
 
       {view === 'leaderboard' && (
-        <div className="glass-panel flex-col w-full text-center">
+        <div className="glass-panel flex-col w-full text-center animate-slide-up">
           <Trophy size={48} className="text-primary mb-4 w-full" style={{margin: '0 auto'}} />
           <h2 className="title-giant mb-8" style={{fontSize: '2.5rem'}}>LEADERBOARD</h2>
           <div className="flex-col mb-8" style={{gap: '12px'}}>

@@ -120,6 +120,15 @@ export default function DrawCanvas({ onSubmit, prompt, timeLeft, mode }: DrawCan
       </div>
 
       <div style={{position: 'relative', width: '100%', aspectRatio: '3/4', borderRadius: '16px', overflow: 'hidden', border: '2px solid hsla(0,0%,100%,0.2)'}}>
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          fontSize: 'clamp(5rem, 30vw, 15rem)', fontWeight: 900, 
+          color: timeLeft <= 10 ? 'hsla(320, 90%, 65%, 0.15)' : 'hsla(0,0%,100%,0.05)',
+          pointerEvents: 'none', zIndex: 10, userSelect: 'none',
+          transition: 'color 0.3s'
+        }}>
+          {timeLeft}
+        </div>
         <canvas
           ref={canvasRef}
           width={600}

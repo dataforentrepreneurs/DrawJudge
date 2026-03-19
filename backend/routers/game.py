@@ -103,6 +103,18 @@ async def websocket_endpoint(
                         
     except WebSocketDisconnect:
         manager.disconnect(room_code, websocket)
+        
+        # Remove the player from state
+        if player_id in room.players:
+            del room.players[player_id]
+            
+        # Check if the round was stalled waiting for this player
+        if room.status == "drawing" and len(room.players) > 0 and len(room.submissions) >= len(room.players):
+            room.status = "judging"
+            await manager.broadcast_to_room(room_code, {"event": "judging_started"})
+            # Trigger asynchronous judging task
+            asyncio.create_task(process_judging(room_code, room))
+
         # Notify remaining players
         await manager.broadcast_to_room(room_code, {
             "event": "room_state_update",
