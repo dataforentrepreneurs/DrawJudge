@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Palette, Play, Users, ArrowLeft, Loader2, Crown, Trophy } from 'lucide-react';
+import { Play, Users, ArrowLeft, Loader2, Crown, Trophy } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import DrawCanvas from './DrawCanvas';
+import mainLogo from './assets/gold.svg';
 
 const isDevServer = window.location.port === '5173' || window.location.port === '3000';
 const backendHost = isDevServer ? 'localhost:8000' : window.location.host;
@@ -108,10 +109,9 @@ function App() {
     <div className="max-w-md w-full">
       {view === 'landing' && (
         <div className="flex-col animate-float">
-          <div className="text-center mb-8">
-            <div className="flex-row justify-center mb-4"><Palette size={64} className="text-primary" /></div>
-            <h1 className="title-giant">DRAW<br/>JUDGE</h1>
-            <p className="subtitle">Draw. Submit. Let AI decide.</p>
+          <div className="text-center mb-8 ">
+            <img src={mainLogo} alt="Draw Judge Logo" style={{ width: '100%', maxWidth: '350px', height: 'auto', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 0 20px hsla(45, 100%, 50%, 0.3))' }} />
+            <p className="subtitle mt-4">Draw. Submit. Let AI decide.</p>
           </div>
           <div className="glass-panel flex-col">
             <button className="btn-primary" onClick={handleCreateRoom} style={{animation: 'pulse-glow 2s infinite'}}><Play size={24} /> Create Game</button>
