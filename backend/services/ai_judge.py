@@ -31,7 +31,8 @@ def get_mock_score(player_id: str, prompt: str) -> AIScoreResponse:
         submission_id=player_id, 
         scores=ScoreBreakdown(prompt_relevance=rel, creativity=cre, clarity=cla, entertainment=ent),
         total_score=total_score,
-        comment=random.choice(comments)
+        comment=random.choice(comments),
+        is_mock=True
     )
 
 async def evaluate_single(player_id: str, prompt_text: str, b64_image: str) -> AIScoreResponse:
@@ -70,7 +71,7 @@ You MUST respond STRICTLY in JSON:
         
         response = await asyncio.to_thread(
             client.models.generate_content,
-            model='gemini-1.5-flash',
+            model='gemini-2.5-flash',
             contents=[instructions, image_part],
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )

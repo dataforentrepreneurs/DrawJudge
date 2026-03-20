@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel # pyre-ignore
 from typing import Optional, Dict, List
 
 class RoomCreateResponse(BaseModel):
@@ -19,6 +19,7 @@ class AIScoreResponse(BaseModel):
     scores: ScoreBreakdown
     total_score: int
     comment: str
+    is_mock: bool = False
 
 class AIBatchResponse(BaseModel):
     results: List[AIScoreResponse]

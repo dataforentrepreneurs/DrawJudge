@@ -238,6 +238,11 @@ function App() {
                     <span>Clarity: {r.scores.clarity}</span>
                     <span>Fun: {r.scores.entertainment}</span>
                   </div>
+                  <div className="mb-2 text-right">
+                    <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: r.is_mock ? 'hsla(0, 100%, 50%, 0.2)' : 'hsla(210, 100%, 50%, 0.2)', color: r.is_mock ? '#ff8888' : '#88ccff' }}>
+                      {r.is_mock ? '🤖 Mock AI Judge' : '✨ Gemini Judge'}
+                    </span>
+                  </div>
                   <div style={{background: 'rgba(0,0,0,0.4)', padding: '16px', borderRadius: '12px', fontStyle: 'italic', color: 'hsla(0,0%,100%,0.9)'}}>"{r.comment}"</div>
                 </div>
               );

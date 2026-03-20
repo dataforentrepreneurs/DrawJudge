@@ -1,7 +1,7 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
-from services.websocket_manager import manager
-from services.state_manager import get_room_state
-from services.ai_judge import evaluate_submissions
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query # pyre-ignore
+from services.websocket_manager import manager # pyre-ignore
+from services.state_manager import get_room_state # pyre-ignore
+from services.ai_judge import evaluate_submissions # pyre-ignore
 import json
 import asyncio
 import os
@@ -25,6 +25,18 @@ async def process_judging(room_code: str, room):
             pid = res.submission_id
             if pid in room.players:
                 room.players[pid]["score"] += res.total_score
+                
+        # Notify host if mock AI was used
+        any_mock = any(res.is_mock for res in results)
+        if any_mock:
+            ai_status_msg = "Game scored using Mock AI (API key missing or error)"
+        else:
+            ai_status_msg = "Game scored successfully using Gemini AI"
+            
+        await manager.send_to_player(room_code, room.host_id, {
+            "event": "ai_diagnostic",
+            "message": ai_status_msg
+        })
                 
         # Broadcast results
         await manager.broadcast_to_room(room_code, {
@@ -55,7 +67,7 @@ async def websocket_endpoint(
     if player_id not in room.players:
         room.players[player_id] = {"name": name, "score": 0}
 
-    await manager.connect(room_code, websocket)
+    await manager.connect(room_code, player_id, websocket)
     
     # Broadcast updated room state to everyone
     await manager.broadcast_to_room(room_code, {
@@ -104,7 +116,7 @@ async def websocket_endpoint(
                         asyncio.create_task(process_judging(room_code, room))
                         
     except WebSocketDisconnect:
-        manager.disconnect(room_code, websocket)
+        manager.disconnect(room_code, player_id)
         
         # Remove the player from state
         if player_id in room.players:
