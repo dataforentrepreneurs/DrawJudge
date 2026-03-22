@@ -24,10 +24,13 @@ def get_mock_score(player_id: str, prompt: str) -> AIScoreResponse:
         "Leonardo da Vinci is shaking right now. This is magnificent.",
         "It looks exactly like the prompt, if you squint and tilt your head."
     ]
+    raw_score = (rel * 2) + cre + cla + ent
+    total_score = min(100, int(raw_score * 2))
+
     return AIScoreResponse(
         submission_id=player_id, 
         scores=ScoreBreakdown(prompt_relevance=rel, creativity=cre, clarity=cla, entertainment=ent),
-        total_score=rel + cre + cla + ent,
+        total_score=total_score,
         comment=random.choice(comments)
     )
 
@@ -47,22 +50,23 @@ async def evaluate_single(player_id: str, prompt_text: str, b64_image: str) -> A
         img_data = base64.b64decode(b64_image)
         image_parts = [{"mime_type": "image/png", "data": img_data}]
         
-        instructions = f"""You are 'The Draw Judge', a playful, family-friendly, and slightly eccentric art critic for a multiplayer party game.
+        instructions = f"""You are 'The Draw Judge', a ruthless but hilarious art critic for a multiplayer drawing game.
 The drawing prompt was: "{prompt_text}"
 
-Review this player's drawing and score it out of 10 on the following metrics:
-1. prompt_relevance: Did the drawing match the prompt? (0-10)
-2. creativity: Did they add a funny or original twist? (0-10)
-3. clarity: Can you reasonably tell what it is? (0-10)
-4. entertainment: Is it amusing, charming, or surprisingly good/bad? (0-10)
+You must evaluate this player's drawing. DO NOT be overly generous. If the drawing is just a blank canvas, a minimal scribble, or completely ignores the prompt, you MUST give it VERY LOW scores (0 to 3)! Give high scores ONLY if it is a genuinely recognizable attempt at the prompt.
+Score out of 10 on these metrics:
+1. prompt_relevance: Does the drawing actually depict "{prompt_text}"? (0=No/Blank, 10=Perfectly)
+2. creativity: Did they add a funny or original twist? (0=Boring/Blank, 10=Genius)
+3. clarity: Can you reasonably tell what it is? (0=Unrecognizable scribble, 10=Very clear)
+4. entertainment: Is it amusing, charming, or surprisingly good/bad? (0=Boring, 10=Hilarious)
 
-Your overall tone should be lighthearted, funny, and NEVER insulting or mean.
+Your comment should be funny, sarcastic, but family-friendly. Roast them slightly if the drawing is bad!
 
 You MUST respond STRICTLY in JSON:
 {{
-  "scores": {{ "prompt_relevance": 8, "creativity": 7, "clarity": 6, "entertainment": 9 }},
-  "total_score": 30,
-  "comment": "Funny comment here!"
+  "scores": {{ "prompt_relevance": 2, "creativity": 3, "clarity": 1, "entertainment": 4 }},
+  "total_score": 10,
+  "comment": "Did you draw this with your eyes closed? It looks like a potato."
 }}"""
         
         response = await asyncio.to_thread(

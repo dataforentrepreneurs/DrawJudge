@@ -18,6 +18,15 @@ export default function DrawCanvas({ onSubmit, prompt, timeLeft, mode }: DrawCan
   type Path = { points: Point[], color: string, width: number };
   const [paths, setPaths] = useState<Path[]>([]);
   const [currentPath, setCurrentPath] = useState<Path | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (timeLeft === 0 && !hasSubmitted) {
+      setHasSubmitted(true);
+      if (canvasRef.current) onSubmit(canvasRef.current.toDataURL('image/png'));
+    }
+  }, [timeLeft, hasSubmitted, onSubmit]);
 
   // Blind Draw logic
   useEffect(() => {
