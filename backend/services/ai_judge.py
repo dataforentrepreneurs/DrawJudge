@@ -5,10 +5,10 @@ import random
 import base64
 from typing import Dict, List
 import traceback
-from models.schemas import AIScoreResponse, ScoreBreakdown
+from models.schemas import AIScoreResponse, ScoreBreakdown  # type: ignore
 
 try:
-    import google.generativeai as genai
+    import google.generativeai as genai  # type: ignore
     HAS_GENAI = True
 except ImportError:
     HAS_GENAI = False
@@ -74,11 +74,28 @@ You MUST respond STRICTLY in JSON:
         )
         
         data = json.loads(response.text)
+        scores_dict = data.get("scores", {})
+        
+        rel = int(scores_dict.get("prompt_relevance", 0))
+        cre = int(scores_dict.get("creativity", 0))
+        cla = int(scores_dict.get("clarity", 0))
+        ent = int(scores_dict.get("entertainment", 0))
+        
+        # Recalculate total_score to heavily emphasize prompt relevance
+        if rel <= 3:
+            raw_score = (rel + cre + cla + ent) * 0.5
+        else:
+            # Relevance counts double to favor on-topic drawings. Max sum = 50.
+            raw_score = (rel * 2) + cre + cla + ent
+            
+        # Scale 0-50 raw score linearly to an out of 100 scale
+        total_score = min(100, int(raw_score * 2))
+        
         return AIScoreResponse(
             submission_id=player_id,
-            scores=ScoreBreakdown(**data["scores"]),
-            total_score=data["total_score"],
-            comment=data["comment"]
+            scores=ScoreBreakdown(**scores_dict),
+            total_score=total_score,
+            comment=data.get("comment", "")
         )
     except Exception as e:
         print(f"FAILED AI generation for {player_id}. Error: {e}")
