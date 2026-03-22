@@ -37,9 +37,11 @@ def get_mock_score(player_id: str, prompt: str) -> AIScoreResponse:
 
 async def evaluate_single(player_id: str, prompt_text: str, b64_image: str) -> AIScoreResponse:
     try:
+        if not HAS_GENAI:
+            raise ImportError("CRITICAL: The 'google-generativeai' python package is missing from the container!")
+            
         api_key = os.environ.get("GEMINI_API_KEY")
-        if not HAS_GENAI or not api_key:
-            print("No GEMINI_API_KEY found in environment variables. Falling back to mock.")
+        if not api_key:
             raise ValueError("No Gemini API key found. Using mock fallback.")
             
         genai.configure(api_key=api_key)
