@@ -40,10 +40,17 @@ async def process_judging(room_code: str, room):
         # Inform room to transition out of judging state to allow next rounds
         room.status = "results"
                 
+        # Prepare detailed results list including the images
+        results_data = []
+        for r in results:
+            item = r.model_dump() if hasattr(r, "model_dump") else r.dict()
+            item["image"] = room.submissions.get(r.submission_id, "")
+            results_data.append(item)
+            
         # Broadcast results
         await manager.broadcast_to_room(room_code, {
             "event": "results_ready",
-            "results": [r.dict() for r in results],
+            "results": results_data,
             "leaderboard": room.players
         })
     except Exception as e:

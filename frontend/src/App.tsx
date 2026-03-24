@@ -63,6 +63,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [results, setResults] = useState<any[]>([]);
   const [isHostUser, setIsHostUser] = useState(false);
+  const [showFullGallery, setShowFullGallery] = useState(false);
   
   const ws = useRef<WebSocket | null>(null);
 
@@ -98,6 +99,7 @@ function App() {
       } else if (data.event === 'results_ready') {
         playTadaSound();
         setResults(data.results);
+        setShowFullGallery(false);
         if (data.leaderboard) {
             const playerList = Object.keys(data.leaderboard).map(pid => ({ id: pid, ...data.leaderboard[pid] }));
             setPlayers(playerList);
@@ -152,7 +154,7 @@ function App() {
   };
 
   return (
-    <div className="max-w-md w-full">
+    <div className={(view === 'results' || view === 'hostLobby') && isHostUser ? "w-full max-w-6xl px-4" : "max-w-md w-full"}>
       {view === 'landing' && (
         <div className="flex-col animate-float">
           <div className="text-center mb-8 ">
@@ -227,39 +229,100 @@ function App() {
         </div>
       )}
 
-      {view === 'results' && (
-        <div className="flex-col w-full text-center animate-pop-in">
-          <div className="glass-panel text-center mb-4 pt-8">
-            <Crown size={48} className="text-primary mb-2 w-full" style={{margin: '0 auto'}} />
-            <h2 className="title-giant" style={{fontSize: '2.5rem'}}>RESULTS</h2>
+      {view === 'results' && isHostUser && (
+        <div className="flex-col w-full text-center animate-pop-in mt-8" style={{margin: '0 auto'}}>
+          <div className="glass-panel text-center mb-8 pt-6 pb-6" style={{boxShadow: '0 0 30px hsla(45, 100%, 50%, 0.2)'}}>
+             <Crown size={64} className="text-primary mb-4 w-full" style={{margin: '0 auto', animation: 'pulse-glow 2s infinite'}} />
+             <h2 className="title-giant" style={{fontSize: '3.5rem', letterSpacing: '2px'}}>ROUND WINNER</h2>
           </div>
-          <div className="flex-col" style={{gap: '16px'}}>
-            {results.map((r, i) => {
-              const player = players.find(p => p.id === r.submission_id) || { name: 'Unknown' };
-              return (
-                <div key={i} className="glass-panel text-left" style={{padding: '24px', position: 'relative'}}>
-                  {i === 0 && (<div style={{position: 'absolute', top: '-15px', right: '-15px', background: 'var(--primary)', color: 'white', padding: '8px 16px', borderRadius: '20px', fontWeight: 900}}>WINNER</div>)}
-                  <div className="flex-row justify-between mb-2">
-                    <h3 style={{fontSize: '1.5rem', fontWeight: 800, color: i===0?'var(--primary)':'white'}}>{player.name}</h3>
-                    <h3 className="text-primary" style={{fontSize: '1.5rem', fontWeight: 900}}>{r.total_score} pts</h3>
-                  </div>
-                  <div className="flex-row justify-between mb-4" style={{fontSize: '0.85rem', color: 'hsla(0,0%,100%,0.6)', fontWeight: 600}}>
-                    <span>Match: {r.scores.prompt_relevance}</span>
-                    <span>Creative: {r.scores.creativity}</span>
-                    <span>Clarity: {r.scores.clarity}</span>
-                    <span>Fun: {r.scores.entertainment}</span>
-                  </div>
-                  <div className="mb-2 text-right">
-                    <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: r.is_mock ? 'hsla(0, 100%, 50%, 0.2)' : 'hsla(210, 100%, 50%, 0.2)', color: r.is_mock ? '#ff8888' : '#88ccff' }}>
-                      {r.is_mock ? '🤖 Mock AI Judge' : '✨ Gemini Judge'}
-                    </span>
-                  </div>
-                  <div style={{background: 'rgba(0,0,0,0.4)', padding: '16px', borderRadius: '12px', fontStyle: 'italic', color: 'hsla(0,0%,100%,0.9)'}}>"{r.comment}"</div>
+          
+          <div className="flex-col md:flex-row" style={{gap: '24px', alignItems: 'flex-start'}}>
+            {/* Winner Card */}
+            <div className="glass-panel" style={{flex: 1.5, padding: '32px', border: '3px solid var(--primary)', boxShadow: '0 0 40px hsla(45, 100%, 50%, 0.4)'}}>
+                <h3 style={{fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '24px', textTransform: 'uppercase'}}>
+                  1st Place: {players.find(p => p.id === results[0]?.submission_id)?.name}
+                </h3>
+                {results[0]?.image && <img src={results[0].image} alt="Winner Drawing" style={{width: '100%', borderRadius: '16px', marginBottom: '24px', background: '#fff'}} />}
+                <h3 className="text-primary" style={{fontSize: '4rem', fontWeight: 900, marginBottom: '16px', lineHeight: '1'}}>{results[0]?.total_score} pts</h3>
+                <div style={{background: 'rgba(0,0,0,0.5)', padding: '24px', borderRadius: '16px', fontSize: '1.5rem', fontStyle: 'italic', fontWeight: '600'}}>
+                    "{results[0]?.comment}"
                 </div>
-              );
-            })}
+            </div>
+            
+            {/* Runner Ups Grid */}
+            <div style={{flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px'}}>
+               {results.slice(1).map((r, i) => {
+                  const player = players.find(p => p.id === r.submission_id) || { name: 'Unknown' };
+                  return (
+                    <div key={i} className="glass-panel" style={{padding: '20px', display: 'flex', flexDirection: 'column'}}>
+                        <h4 style={{fontSize: '1.75rem', fontWeight: 800, marginBottom: '12px', color: 'white'}}>{player.name}</h4>
+                        {r.image && <img src={r.image} alt="Drawing" style={{width: '100%', borderRadius: '12px', marginBottom: '12px', background: '#fff', flex: 1, objectFit: 'contain'}} />}
+                        <h4 className="text-primary" style={{fontSize: '2rem', fontWeight: 900, marginBottom: '8px'}}>{r.total_score} pts</h4>
+                        <div style={{background: 'rgba(0,0,0,0.4)', padding: '16px', borderRadius: '12px', fontSize: '1.1rem', fontStyle: 'italic', color: 'hsla(0,0%,100%,0.9)'}}>
+                            "{r.comment}"
+                        </div>
+                    </div>
+                  );
+               })}
+            </div>
           </div>
-          <button className="btn-primary mt-8" onClick={() => setView('leaderboard')}>View Leaderboard</button>
+          <button className="btn-primary mt-12 mb-8" style={{fontSize: '1.5rem', padding: '16px 48px'}} onClick={() => setView('leaderboard')}>View Overall Leaderboard</button>
+        </div>
+      )}
+
+      {view === 'results' && !isHostUser && (
+        <div className="flex-col w-full text-center animate-slide-up">
+           <div className="glass-panel text-center mb-6 pt-8 pb-8" style={{border: '2px dashed var(--primary)'}}>
+             <h2 className="title-giant" style={{fontSize: '2rem', marginBottom: '12px'}}>LOOK AT THE SCREEN!</h2>
+             <p className="subtitle" style={{marginBottom: 0}}>The Host projector is showing everyone's drawings.</p>
+           </div>
+           
+           {/* Show personal result constrainted view */}
+           {!showFullGallery ? (
+             <>
+               {(() => {
+                  const myRank = results.findIndex(r => r.submission_id === playerId);
+                  const myRes = myRank !== -1 ? results[myRank] : null;
+                  if (!myRes) return null;
+                  
+                  return (
+                     <div className="glass-panel text-left" style={{padding: '24px', marginBottom: '16px'}}>
+                        <h3 style={{fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '16px'}}>
+                           Your Placement: #{myRank + 1}
+                        </h3>
+                        {myRes.image && <img src={myRes.image} alt="Your Drawing" style={{width: '100%', borderRadius: '12px', marginBottom: '20px', background: '#fff'}} />}
+                        <div className="flex-row justify-between mb-4">
+                          <h3 className="text-primary" style={{fontSize: '2.5rem', fontWeight: 900, lineHeight: 1}}>{myRes.total_score} pts</h3>
+                        </div>
+                        <div style={{background: 'rgba(0,0,0,0.4)', padding: '16px', borderRadius: '12px', fontSize: '1.1rem', fontStyle: 'italic'}}>
+                           "{myRes.comment}"
+                        </div>
+                     </div>
+                  );
+               })()}
+               <button className="btn-secondary w-full" onClick={() => setShowFullGallery(true)}>View Full Gallery 🖼️</button>
+             </>
+           ) : (
+             <div className="flex-col animate-slide-up" style={{gap: '16px', textAlign: 'left', marginTop: '16px'}}>
+               <button className="btn-secondary w-full mb-4" onClick={() => setShowFullGallery(false)}><ArrowLeft size={20} style={{display: 'inline', marginRight: '8px'}} /> Back to My Score</button>
+               {results.map((r, i) => {
+                  const player = players.find(p => p.id === r.submission_id) || { name: 'Unknown' };
+                  return (
+                    <div key={i} className="glass-panel text-left" style={{padding: '20px', position: 'relative'}}>
+                        {i === 0 && <div style={{position: 'absolute', top: '-12px', right: '-12px', background: 'var(--primary)', color: 'black', padding: '6px 12px', borderRadius: '16px', fontWeight: 900, fontSize: '0.8rem'}}>WINNER</div>}
+                        <h4 style={{fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: i === 0 ? 'var(--primary)' : 'white'}}>
+                          {i+1}. {player.name}
+                        </h4>
+                        {r.image && <img src={r.image} alt="Drawing" style={{width: '100%', borderRadius: '8px', marginBottom: '12px', background: '#fff'}} />}
+                        <h4 className="text-primary" style={{fontSize: '1.5rem', fontWeight: 900, marginBottom: '8px'}}>{r.total_score} pts</h4>
+                        <div style={{background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', fontSize: '1rem', fontStyle: 'italic', color: 'hsla(0,0%,100%,0.9)'}}>
+                            "{r.comment}"
+                        </div>
+                    </div>
+                  );
+               })}
+             </div>
+           )}
         </div>
       )}
 
