@@ -44,7 +44,8 @@ async def process_judging(room_code: str, room):
         results_data = []
         for r in results:
             item = r.model_dump() if hasattr(r, "model_dump") else r.dict()
-            item["image"] = room.submissions.get(r.submission_id, "")
+            sub_data = room.submissions.get(r.submission_id, {})
+            item["image"] = sub_data.get("image", "") if isinstance(sub_data, dict) else ""
             results_data.append(item)
             
         # Broadcast results
