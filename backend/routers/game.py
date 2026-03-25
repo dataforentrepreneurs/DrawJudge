@@ -198,8 +198,9 @@ async def websocket_endpoint(
     except WebSocketDisconnect:
         manager.disconnect(room_code, player_id)
         
-        # Remove the player from state
-        if player_id in room.players:
+        # Only remove the player from state if the game hasn't started yet.
+        # Otherwise, preserve their score/history in case they reconnect!
+        if room.status == "waiting" and player_id in room.players:
             del room.players[player_id]
             
         # Check if the round was stalled waiting for this player

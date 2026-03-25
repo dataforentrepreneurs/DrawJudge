@@ -528,8 +528,12 @@ function App() {
 
           {/* Ultimate Winner Gallery */}
           {currentRound >= maxRounds && isHostUser && selectedPlayerHistory && (
-             <div className="glass-panel w-full mt-8 animate-pop-in" style={{ padding: '24px', border: '3px solid var(--primary)', background: 'linear-gradient(145deg, rgba(200,150,0,0.1), transparent)' }}>
-                 <h3 className="text-primary" style={{ fontSize: '2.5rem', marginBottom: '16px', textTransform: 'uppercase' }}>🏆 ULTIMATE WINNER: {selectedPlayerName} 🏆</h3>
+             <div className="glass-panel w-full mt-8 animate-pop-in" style={{ padding: '24px', border: '3px solid var(--primary)', background: 'linear-gradient(145deg, rgba(200,0,100,0.1), transparent)' }}>
+                 <h3 className="text-primary" style={{ fontSize: '2.5rem', marginBottom: '16px', textTransform: 'uppercase' }}>
+                    {players.sort((a,b) => b.score - a.score)[0]?.name === selectedPlayerName 
+                       ? `🏆 ULTIMATE WINNER: ${selectedPlayerName} 🏆` 
+                       : `🎨 ${selectedPlayerName}'S SHOWCASE`}
+                 </h3>
                  <p className="subtitle mb-6" style={{ color: 'hsla(0,0%,100%,0.8)' }}>A gallery of their masterpieces</p>
                  <div style={{ display: 'flex', overflowX: 'auto', gap: '16px', paddingBottom: '16px', alignItems: 'stretch', textAlign: 'left' }}>
                      {selectedPlayerHistory.map((item, idx) => (
