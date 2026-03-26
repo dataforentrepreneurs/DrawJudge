@@ -161,17 +161,7 @@ Return STRICT JSON ONLY. Do not wrap in markdown blocks. Format exactly like thi
 
     models_to_try = [
         # Check environment variable first
-        os.environ.get("GEMINI_MODEL", "gemini-2.5-flash"), 
-        
-        # 2026 Stable Models (GA)
-        "gemini-2.5-flash",          # Best balance of speed/cost for party games
-        "gemini-2.5-pro",            # High intelligence for complex drawings
-        "gemini-3-flash", 
-        
-        # 2026 Newest Previews (Require -preview suffix)
-        "gemini-3.1-flash-lite-preview", 
-        "gemini-3.1-pro-preview",
-        "gemini-3-flash-preview"
+        os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
     ]
     
     response = None
@@ -189,8 +179,8 @@ Return STRICT JSON ONLY. Do not wrap in markdown blocks. Format exactly like thi
                     )
                 )
             
-            # Using 45 timeout due to batch size requiring longer processing
-            response = await asyncio.wait_for(asyncio.to_thread(_call_model), timeout=45)  # type: ignore
+            # Using 12 second timeout for extreme responsiveness
+            response = await asyncio.wait_for(asyncio.to_thread(_call_model), timeout=12)  # type: ignore
             break # Success!
         except Exception as e:
             last_error = str(e) or type(e).__name__

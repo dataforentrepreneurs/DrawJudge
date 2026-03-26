@@ -24,7 +24,9 @@ export default function DrawCanvas({ onSubmit, prompt, timeLeft, mode }: DrawCan
   useEffect(() => {
     if (timeLeft === 0 && !hasSubmitted) {
       setHasSubmitted(true);
-      if (canvasRef.current) onSubmit(canvasRef.current.toDataURL('image/png'));
+      if (canvasRef.current) {
+          onSubmit(canvasRef.current.toDataURL('image/jpeg', 0.6));
+      }
     }
   }, [timeLeft, hasSubmitted, onSubmit]);
 
@@ -106,7 +108,7 @@ export default function DrawCanvas({ onSubmit, prompt, timeLeft, mode }: DrawCan
   }, [paths, currentPath]);
 
   const handleSubmit = () => {
-    if (canvasRef.current) onSubmit(canvasRef.current.toDataURL('image/png'));
+    if (canvasRef.current) onSubmit(canvasRef.current.toDataURL('image/jpeg', 0.6));
   };
 
   useEffect(() => {
