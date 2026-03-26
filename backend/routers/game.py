@@ -65,12 +65,18 @@ async def process_judging(room_code: str, room):
                 "scores": r.scores.model_dump() if hasattr(r.scores, "model_dump") else r.scores.dict()
             })
             
+        winner_exp = eval_result.winner_explanation
+        if winner_exp:
+            for p_id, p_stats in room.players.items():
+                if p_id in winner_exp:
+                    winner_exp = winner_exp.replace(p_id, p_stats["name"])
+
         # Broadcast results
         await manager.broadcast_to_room(room_code, {
             "event": "results_ready",
             "results": results_data,
             "round_summary": eval_result.round_summary,
-            "winner_explanation": eval_result.winner_explanation,
+            "winner_explanation": winner_exp,
             "leaderboard": room.players,
             "current_round": room.current_round,
             "max_rounds": room.max_rounds,
@@ -194,6 +200,12 @@ async def websocket_endpoint(
                         })
                         # Trigger asynchronous judging task
                         asyncio.create_task(process_judging(room_code, room))
+            
+            elif event == "force_judging":
+                if player_id == room.host_id and room.status == "drawing":
+                    room.status = "judging"
+                    await manager.broadcast_to_room(room_code, {"event": "judging_started"})
+                    asyncio.create_task(process_judging(room_code, room))
                         
     except WebSocketDisconnect:
         manager.disconnect(room_code, player_id)

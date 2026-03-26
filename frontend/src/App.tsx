@@ -75,6 +75,15 @@ function App() {
 
   const ws = useRef<WebSocket | null>(null);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+    if (roomParam) {
+      setRoomCode(roomParam.toUpperCase());
+      setView('join');
+    }
+  }, []);
+
   const connectWebSocket = (code: string, isHost: boolean, overridePlayerId: string) => {
     setIsHostUser(isHost);
     const name = isHost ? "Host" : playerName;
@@ -147,7 +156,10 @@ function App() {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     }
-  }, [view, timeLeft]);
+    if (view === 'drawing' && timeLeft === 0 && isHostUser && ws.current) {
+       ws.current.send(JSON.stringify({ event: 'force_judging' }));
+    }
+  }, [view, timeLeft, isHostUser]);
 
   const handleCreateRoom = async () => {
     try {
@@ -188,6 +200,13 @@ function App() {
 
   return (
     <div className={isHostUser ? "w-full max-w-6xl px-4" : "max-w-md w-full"}>
+      
+      {/* Persistent Room Code on Host screen */}
+      {isHostUser && view !== 'landing' && view !== 'join' && view !== 'hostLobby' && (
+         <div className="glass-panel" style={{ position: 'absolute', top: '16px', left: '16px', padding: '12px 24px', zIndex: 50, border: '2px solid var(--primary)' }}>
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Room Code: <span className="text-primary">{roomCode}</span></span>
+         </div>
+      )}
       {view === 'landing' && (
         <div className="flex-col animate-float">
           <div className="text-center mb-8 ">
@@ -312,7 +331,7 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'row', gap: '16px', flex: 1, minHeight: 0 }}>
                 {results[0]?.image && (
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 0 }}>
-                    <img src={results[0].image} alt="Winner Drawing" style={{ width: '100%', maxWidth: '350px', aspectRatio: '3/4', objectFit: 'contain', borderRadius: '16px', background: '#1a1f33', border: '2px solid hsla(0,0%,100%,0.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }} />
+                    <img src={results[0].image} alt="Winner Drawing" style={{ height: '100%', width: 'auto', aspectRatio: '3/4', objectFit: 'contain', borderRadius: '16px', background: '#1a1f33', border: '2px solid hsla(0,0%,100%,0.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }} />
                   </div>
                 )}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflowY: 'auto', paddingRight: '8px', textAlign: 'left' }}>
@@ -512,6 +531,11 @@ function App() {
               </div>
             ))}
           </div>
+          {/* Navigation for Players */}
+          {!isHostUser && currentRound < maxRounds && (
+              <button className="btn-secondary w-full mb-4" onClick={() => setView('results')}>🔙 Back to Results</button>
+          )}
+
           {isHostUser ? (
              currentRound >= maxRounds ? (
                 <button className="btn-secondary" style={{ border: '2px solid var(--primary)' }} onClick={() => {
