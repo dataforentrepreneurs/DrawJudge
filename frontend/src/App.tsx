@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Play, Users, ArrowLeft, Loader2, Crown, Trophy } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import confetti from 'canvas-confetti';
 import DrawCanvas from './DrawCanvas';
 import mainLogo from './assets/gold.svg';
 
@@ -72,6 +73,7 @@ function App() {
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>('');
   const [isHostUser, setIsHostUser] = useState(false);
   const [showFullGallery, setShowFullGallery] = useState(false);
+  const [hasPlayedFinale, setHasPlayedFinale] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -164,6 +166,42 @@ function App() {
        return () => clearTimeout(overrideTimer);
     }
   }, [view, timeLeft, isHostUser]);
+
+  useEffect(() => {
+     if (currentRound < maxRounds) setHasPlayedFinale(false);
+  }, [currentRound, maxRounds]);
+
+  useEffect(() => {
+     if (view === 'leaderboard' && currentRound >= maxRounds && isHostUser && !hasPlayedFinale) {
+        setHasPlayedFinale(true);
+        
+        // Grand Confetti
+        const duration = 5000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+        const interval: any = setInterval(function() {
+          const timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) return clearInterval(interval);
+          const particleCount = 50 * (timeLeft / duration);
+          confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+          confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+        }, 250);
+        
+        // Text to Speech Announcement
+        if ('speechSynthesis' in window) {
+             const sortedLeaderboard = [...players].sort((a, b) => b.score - a.score);
+             if (sortedLeaderboard.length > 0) {
+                 const msg = new SpeechSynthesisUtterance(`And the ultimate winner is... ${sortedLeaderboard[0].name}!`);
+                 msg.rate = 0.9;
+                 msg.pitch = 1.1;
+                 window.speechSynthesis.speak(msg);
+             }
+        }
+     }
+  }, [view, currentRound, maxRounds, hasPlayedFinale, isHostUser, players]);
 
   const handleCreateRoom = async () => {
     try {

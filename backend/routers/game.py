@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query # pyre-ignore
 from services.websocket_manager import manager # pyre-ignore
 from services.state_manager import get_room_state # pyre-ignore
-from services.ai_judge import evaluate_submissions # pyre-ignore
+from services.ai_judge import evaluate_submissions, generate_creative_prompt # pyre-ignore
 import json
 import asyncio
 import os
@@ -138,7 +138,10 @@ async def websocket_endpoint(
                 if room.status in ["drawing", "judging"]:
                     continue
                 mode = message.get("mode", "classic")
-                selected_prompt = random.choice(PROMPTS_LIB)
+                
+                ai_prompt = await generate_creative_prompt()
+                selected_prompt = ai_prompt if ai_prompt else random.choice(PROMPTS_LIB)
+                
                 room.start_round(selected_prompt, mode)
                 
                 duration = 60

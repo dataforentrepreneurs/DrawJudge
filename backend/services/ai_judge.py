@@ -112,8 +112,9 @@ You are evaluating all players' drawings at once.
 Below, I will provide the images in order. Each image corresponds to a specific SUBMISSION_ID.
 
 Scoring & Persona rules:
-- If a drawing is blank, near-blank, random scribble, or ignores the prompt, score very low.
-- Give high scores only if it is a recognizable attempt at the prompt.
+- CRITICAL: If a drawing is completely blank or near-blank, you MUST score 0 in all fields and set "is_scribble_or_blank": true.
+- If it's a random scribble wildly ignoring the prompt, penalize it heavily.
+- Give high scores only if it is a verifiable attempt at the prompt.
 - Score each field (prompt_relevance, creativity, clarity, entertainment) from 0 to 10.
 - Keep comments UNDER 1 SENTENCE! Make it punchy and funny.
 - Roast lightly but do not be harsh.
@@ -228,8 +229,11 @@ Return STRICT JSON ONLY. Do not wrap in markdown blocks. Format exactly like thi
     
             is_bad = bool(eval_data.get("is_scribble_or_blank", False))
     
-            if is_bad or rel <= 3:
-                total_score = random.randint(0, 15)
+            if is_bad:
+                total_score = 0
+            elif rel <= 3:
+                raw_score = (rel * 2) + cre + cla + ent
+                total_score = min(20, int(raw_score * 0.5))
             else:
                 raw_score = (rel * 2) + cre + cla + ent
                 total_score = min(100, int(raw_score * 2))
@@ -284,3 +288,22 @@ def _fallback_all_to_mock(submissions: Dict[str, dict], prompt: str, error_msg: 
         round_summary=f"The judge was asleep ({mock_reason}). Everyone gets arbitrary mock scores!",
         winner_explanation="The winner probably bribed the mock AI judge."
     )
+
+async def generate_creative_prompt() -> str:
+    try:
+        client = get_gemini_client()
+        model_name = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        
+        instructions = "You are a creative party game host. Generate exactly ONE very funny, highly unique DRAWING PROMPT for a drawing game. It should be unexpected, slightly absurd, but very drawable. For example: 'A cat teaching a yoga class' or 'A toaster running for President'. ONLY return the prompt string itself, no quotes, no extra text."
+        
+        def _call_model():
+            return client.models.generate_content(  # type: ignore
+                model=model_name,
+                contents=instructions
+            )
+        
+        response = await asyncio.wait_for(asyncio.to_thread(_call_model), timeout=8) # type: ignore
+        return str(response.text).strip()  # type: ignore
+    except Exception as e:
+        print(f"Failed AI prompt generation: {e}")
+        return ""
