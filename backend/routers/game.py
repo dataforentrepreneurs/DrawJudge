@@ -81,7 +81,8 @@ async def process_judging(room_code: str, room):
             "leaderboard": room.players,
             "current_round": room.current_round,
             "max_rounds": room.max_rounds,
-            "round_deltas": room.last_round_deltas
+            "round_deltas": room.last_round_deltas,
+            "ai_latency_seconds": eval_result.ai_latency_seconds
         })
     except Exception as e:
         import traceback

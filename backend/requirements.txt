@@ -6,3 +6,5 @@ pydantic-core
 python-multipart
 google-genai
 python-dotenv
+redis
+fakeredis

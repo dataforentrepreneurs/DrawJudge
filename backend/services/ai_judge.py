@@ -4,6 +4,7 @@ import asyncio
 import random
 import base64
 import traceback
+import time
 from typing import Dict, List, Optional
 
 from models.schemas import AIScoreResponse, ScoreBreakdown, BatchEvaluationResult  # type: ignore
@@ -188,6 +189,7 @@ Return STRICT JSON ONLY. Do not wrap in markdown blocks. Format exactly like thi
     
     response = None
     last_error = ""
+    start_time = time.time()
 
     for model_name in models_to_try:
         try:
@@ -209,9 +211,10 @@ Return STRICT JSON ONLY. Do not wrap in markdown blocks. Format exactly like thi
             print(f"Model {model_name} failed: {last_error}")
             continue
 
+    latency = round(time.time() - start_time, 2)
     if not response:
         print(f"All models failed batch evaluation. Generating Mocks. Last trace: {last_error}")
-        return _fallback_all_to_mock(submissions, prompt, last_error)
+        return _fallback_all_to_mock(submissions, prompt, last_error, latency)
 
     try:
         text = response.text or ""  # type: ignore
@@ -267,16 +270,17 @@ Return STRICT JSON ONLY. Do not wrap in markdown blocks. Format exactly like thi
         return BatchEvaluationResult(
             results=final_scores,
             round_summary=round_summary,
-            winner_explanation=winner_explanation
+            winner_explanation=winner_explanation,
+            ai_latency_seconds=latency
         )
 
     except Exception as e:
         error_msg = str(e) or type(e).__name__
         print(f"FAILED AI batch parsing. Error: {error_msg}")
         traceback.print_exc()
-        return _fallback_all_to_mock(submissions, prompt, error_msg)
+        return _fallback_all_to_mock(submissions, prompt, error_msg, latency)
 
-def _fallback_all_to_mock(submissions: Dict[str, dict], prompt: str, error_msg: str) -> BatchEvaluationResult:
+def _fallback_all_to_mock(submissions: Dict[str, dict], prompt: str, error_msg: str, latency: float = 0.0) -> BatchEvaluationResult:
     results = []
     for pid in submissions.keys():
         mock_res = get_mock_score(pid, prompt)
@@ -293,7 +297,8 @@ def _fallback_all_to_mock(submissions: Dict[str, dict], prompt: str, error_msg: 
     return BatchEvaluationResult(
         results=results,
         round_summary=f"The judge was asleep ({mock_reason}). Everyone gets arbitrary mock scores!",
-        winner_explanation="The winner probably bribed the mock AI judge."
+        winner_explanation="The winner probably bribed the mock AI judge.",
+        ai_latency_seconds=latency
     )
 
 async def generate_creative_prompt(theme: str = "Family") -> str:

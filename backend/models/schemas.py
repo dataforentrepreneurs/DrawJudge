@@ -25,3 +25,5 @@ class BatchEvaluationResult(BaseModel):
     results: List[AIScoreResponse]
     round_summary: str
     winner_explanation: str
+    ai_latency_seconds: float = 0.0
+

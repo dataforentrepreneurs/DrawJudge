@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Users, ArrowLeft, Loader2, Crown, Trophy } from 'lucide-react';
+import { Play, Users, ArrowLeft, Loader2, Crown, Trophy, Share2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
+import { toJpeg } from 'html-to-image';
+import posthog from 'posthog-js';
 import DrawCanvas from './DrawCanvas';
 import mainLogo from './assets/gold.svg';
 
@@ -142,6 +144,7 @@ function App() {
         if (data.max_rounds !== undefined) setMaxRounds(data.max_rounds);
         setSubmissionCount(0);
         setView('drawing');
+        posthog.capture('Round_Started', { mode: data.mode, duration: data.duration_seconds });
       } else if (data.event === 'judging_started') {
         setView('judging');
       } else if (data.event === 'results_ready') {
@@ -167,6 +170,7 @@ function App() {
         }
         
         setView('results');
+        posthog.capture('AI_Judge_Latency', { latency_seconds: data.ai_latency_seconds, player_count: Object.keys(data.leaderboard || {}).length });
       } else if (data.event === 'player_history') {
         setSelectedPlayerHistory(data.history);
       } else if (data.event === 'submission_count_update') {
@@ -239,6 +243,7 @@ function App() {
       localStorage.setItem('dj_player_id', data.host_id);
       connectWebSocket(data.room_code, true, data.host_id);
       setView('hostLobby');
+      posthog.capture('Game_Created', { room_code: data.room_code });
     } catch (e) {
       alert("Failed creating room! Ensure backend is running. " + e);
     }
@@ -249,6 +254,7 @@ function App() {
     localStorage.setItem('dj_player_name', playerName);
     connectWebSocket(roomCode, false, playerId);
     setView('playerLobby');
+    posthog.capture('Player_Joined', { room_code: roomCode });
   };
 
   const handleStartGame = () => {
@@ -261,6 +267,33 @@ function App() {
     if (ws.current) {
       ws.current.send(JSON.stringify({ event: 'submit_drawing', image_data: dataUrl }));
       setView('judging');
+      posthog.capture('Drawing_Submitted', { mode: gameMode });
+    }
+  };
+
+  const handleShare = async (id: string, name: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    try {
+      const dataUrl = await toJpeg(el, { quality: 0.95, backgroundColor: '#0f1322' });
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `${name}_DrawJudge.jpg`, { type: 'image/jpeg' });
+      
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'Draw Judge!',
+          text: 'Look at what the AI generated from my drawing! 🎨🤖',
+          files: [file]
+        });
+      } else {
+        const link = document.createElement('a');
+        link.download = `${name}_DrawJudge.jpg`;
+        link.href = dataUrl;
+        link.click();
+      }
+      posthog.capture('Shared_To_Story');
+    } catch (err) {
+      console.error("Failed to share", err);
     }
   };
 
@@ -507,7 +540,7 @@ function App() {
                 if (!myRes) return null;
 
                 return (
-                  <div className="glass-panel text-left" style={{ padding: '24px', marginBottom: '16px' }}>
+                  <div className="glass-panel text-left" id="my-share-card" style={{ padding: '24px', marginBottom: '16px' }}>
                     <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '16px' }}>
                       Your Placement: #{myRank + 1}
                     </h3>
@@ -531,8 +564,12 @@ function App() {
                       </div>
                     );
                   })()}
+                  <button className="btn-primary w-full mt-2 mb-4" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', animation: 'pulse-glow 2s infinite' }} onClick={() => {
+                        const myRank = results.findIndex(r => r.submission_id === playerId);
+                        if (myRank !== -1) handleShare('my-share-card', 'MyDrawing');
+                  }}><Share2 size={24} /> Share to Story 📸</button>
                   <button className="btn-secondary w-full" onClick={() => setShowFullGallery(true)}>View Full Gallery 🖼️</button>
-                  <button className="btn-primary w-full mt-4" style={{border: '2px solid var(--primary)'}} onClick={() => setView('leaderboard')}>View Leaderboard 🏆</button>
+                  <button className="btn-secondary w-full mt-4" style={{border: '2px solid var(--primary)'}} onClick={() => setView('leaderboard')}>View Leaderboard 🏆</button>
             </>
           ) : (
             <div className="flex-col animate-slide-up" style={{ gap: '16px', textAlign: 'left', marginTop: '16px' }}>
