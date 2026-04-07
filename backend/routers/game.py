@@ -310,9 +310,8 @@ async def websocket_endpoint(
                         "total": len(room.players)
                     })
                     
-                    # If all ACTIVE participants have submitted
-                    active_participants = [p for p in room.round_participants if room.player_presence.get(p, {}).get("connected", False)]
-                    if len(room.submissions) >= len(active_participants) and len(active_participants) > 0:
+                    # If all round participants have submitted (ignoring temporary disconnects)
+                    if len(room.submissions) >= len(room.round_participants) and len(room.round_participants) > 0:
                         room.status = "judging"
                         await manager.broadcast_to_room(room_code, {
                             "event": "judging_started"
@@ -340,18 +339,6 @@ async def websocket_endpoint(
         if player_id in room.player_presence:
             room.player_presence[player_id]["connected"] = False
             room.player_presence[player_id]["last_seen"] = time.time()
-            
-        # Check if the round was stalled waiting for this explicitly disconnected player
-        if room.status == "drawing" and len(room.round_participants) > 0:
-            active_participants = [p for p in room.round_participants if room.player_presence.get(p, {}).get("connected", False)]
-            if len(active_participants) > 0 and len(room.submissions) >= len(active_participants):
-                room.status = "judging"
-                await manager.broadcast_to_room(room_code, {"event": "judging_started"})
-                
-                async def delayed_judging():
-                    await asyncio.sleep(1.5)
-                    await process_judging(room_code, room)
-                asyncio.create_task(delayed_judging())
 
         # Notify remaining players
         await manager.broadcast_to_room(room_code, {
