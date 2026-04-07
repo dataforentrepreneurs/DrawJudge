@@ -1,66 +1,73 @@
-# DrawJudge 🎨⚖️
+# React + TypeScript + Vite
 
-DrawJudge is an AI-powered drawing party game where players are given a prompt, draw it on a shared canvas, and an AI judge scores their drawing based on accuracy, creativity, and style!
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 🚀 Tech Stack
+Currently, two official plugins are available:
 
-- **Frontend**: React 19, Vite, TypeScript, Tailwind CSS
-- **Backend**: Python, FastAPI, WebSockets
-- **AI Integration**: Google Generative AI (Gemini Vision)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## 🛠️ Project Structure
+## React Compiler
 
-- `/frontend` - The React application where players draw and interact in real-time.
-- `/backend` - The FastAPI server that handles game state, WebSocket connections, and communicates with the AI judge.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## 🏃‍♂️ How to Run Locally
+## Expanding the ESLint configuration
 
-### 1. Start the Backend
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-Navigate to the backend directory, set up your virtual environment, and run the server:
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-```bash
-cd backend
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-# Create a virtual environment (depending on your OS)
-python -m venv venv
-
-# Activate the virtual environment (Windows)
-venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the FastAPI server
-fastapi dev main.py
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-The backend will run at `http://localhost:8000`.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-### 2. Start the Frontend
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-Open a new terminal, navigate to the frontend directory, install dependencies, and start the Vite dev server:
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Run the frontend server
-npm run dev
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-The frontend will typically run at `http://localhost:5173`. Open this URL in your browser to start playing!
-
-## 🎮 How to Play
-
-1. A player creates a game room and shares the Room Code (or QR code) with friends.
-2. Friends join the room using their mobile devices or browsers.
-3. The game gives everyone a fun prompt to draw.
-4. Players draw their interpretation on the canvas and submit it before time runs out.
-5. The AI Judge analyzes all submissions and awards points!
-
-## 🤖 AI Setup
-
-Currently, the game may use a mock AI judge for testing. To use the real Google Generative AI judge, ensure you have your `GEMINI_API_KEY` configured in your backend environment variables.

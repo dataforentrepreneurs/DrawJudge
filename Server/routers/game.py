@@ -131,7 +131,7 @@ async def process_judging(room_code: str, room):
 
 router = APIRouter(tags=["Game"])
 
-@router.websocket("/ws/rooms/{room_code}")
+@router.websocket("/ws/drawjudge/rooms/{room_code}")
 async def websocket_endpoint(
     websocket: WebSocket, 
     room_code: str, 

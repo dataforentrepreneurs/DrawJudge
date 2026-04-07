@@ -1,0 +1,17 @@
+/* Ghibli Theme Variables & Focus States */
+:root {
+  --ghibli-gold: #f39c12;
+}
+
+/* This makes the game cards "pop" when navigating with a TV remote */
+.game-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.game-card:focus, .game-card:hover {
+  outline: 5px solid var(--ghibli-gold); /* A nice Ghibli-gold border */
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(243, 156, 18, 0.6);
+}

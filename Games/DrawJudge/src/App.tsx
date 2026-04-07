@@ -40,10 +40,10 @@ const playTadaSound = () => {
   } catch (e) { }
 };
 
-const isDevServer = window.location.port === '5173' || window.location.port === '3000';
+const isDevServer = window.location.port === '5173' || window.location.port === '3000' || window.location.port === '3001';
 const backendHost = isDevServer ? 'localhost:8000' : window.location.host;
-const API_BASE = `${window.location.protocol}//${backendHost}/api`;
-const WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${backendHost}/ws/rooms`;
+const API_BASE = `${window.location.protocol}//${backendHost}/api/drawjudge`;
+const WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${backendHost}/ws/drawjudge/rooms`;
 
 function generatePlayerId() {
   const existing = localStorage.getItem('dj_player_id');
