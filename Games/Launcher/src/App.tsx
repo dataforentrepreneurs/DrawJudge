@@ -3,15 +3,17 @@ import './App.css'
 function App() {
   const go = (path: string) => {
     // Chromecast / Android TV remotes sometimes don't "activate" <a> on DPAD_CENTER.
-    // Doing a direct location change makes selection reliable across TV webviews.
-    window.location.assign(path)
+    // We use a direct location assignment to bypass potential click-blocking.
+    console.log(`Navigating to: ${path}`);
+    window.location.href = path;
   }
 
   const onCardKeyDown = (e: React.KeyboardEvent, path: string) => {
-    // Support OK/Enter and Space-to-activate patterns.
+    // Standard TV remote "OK/Select" button emits 'Enter'. 
+    // We also support ' ' (SpaceBar) as some remotes map to it.
     if (e.key === 'Enter' || e.key === 'NumpadEnter' || e.key === ' ') {
-      e.preventDefault()
-      go(path)
+      e.preventDefault();
+      go(path);
     }
   }
 
