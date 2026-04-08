@@ -41,7 +41,7 @@ const playTadaSound = () => {
 };
 
 const isDevServer = window.location.port === '5173' || window.location.port === '3000' || window.location.port === '3001';
-const backendHost = isDevServer ? 'localhost:8000' : window.location.host;
+const backendHost = isDevServer ? `${window.location.hostname}:8000` : window.location.host;
 const API_BASE = `${window.location.protocol}//${backendHost}/api/drawjudge`;
 const WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${backendHost}/ws/drawjudge/rooms`;
 

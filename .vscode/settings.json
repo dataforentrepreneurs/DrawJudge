@@ -3,5 +3,7 @@
     "python.analysis.extraPaths": [
         "${workspaceFolder}/backend"
     ],
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.jdt.ls.java.home": "C:\\Program Files\\Android\\Android Studio\\jbr",
+    "java.import.gradle.java.home": "C:\\Program Files\\Android\\Android Studio\\jbr"
 }
