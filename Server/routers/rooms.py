@@ -2,10 +2,11 @@ from fastapi import APIRouter, HTTPException
 from services.state_manager import create_room_state, get_room_state
 from models.schemas import RoomCreateResponse
 
-router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
+router = APIRouter(prefix="/rooms", tags=["Rooms"])
 
 @router.post("", response_model=RoomCreateResponse)
 def create_new_room():
+    print("Received request to create room")
     room = create_room_state()
     return RoomCreateResponse(room_code=room.room_code, host_id=room.host_id)
 

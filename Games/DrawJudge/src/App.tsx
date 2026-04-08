@@ -40,10 +40,27 @@ const playTadaSound = () => {
   } catch (e) { }
 };
 
-const isDevServer = window.location.port === '5173' || window.location.port === '3000' || window.location.port === '3001';
-const backendHost = isDevServer ? `${window.location.hostname}:8000` : window.location.host;
-const API_BASE = `${window.location.protocol}//${backendHost}/api/drawjudge`;
-const WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${backendHost}/ws/drawjudge/rooms`;
+// Hardcoded IP for local network testing on Chromecast
+const backendHost = import.meta.env.VITE_BACKEND_URL || '192.168.1.25:8000';
+
+// Helper to determine if we should use secure protocols
+const isSecure = !backendHost.includes('192.168.') && !backendHost.includes('localhost');
+const protocol = isSecure ? 'https' : 'http';
+const wsProtocol = isSecure ? 'wss' : 'ws';
+
+const API_BASE = backendHost.startsWith('http')
+  ? `${backendHost}/api/drawjudge`
+  : `${protocol}://${backendHost}/api/drawjudge`;
+
+const WS_BASE = backendHost.startsWith('http')
+  ? backendHost.replace('http', 'ws') + '/ws/drawjudge/rooms'
+  : `${wsProtocol}://${backendHost}/ws/drawjudge/rooms`;
+
+// Helper for QR Code URLs
+const getJoinUrl = (code: string) => {
+  const host = backendHost.startsWith('http') ? backendHost : `${protocol}://${backendHost}`;
+  return `${host}/drawjudge/?room=${code}`;
+};
 
 function generatePlayerId() {
   const existing = localStorage.getItem('dj_player_id');
@@ -332,10 +349,33 @@ function App() {
     }
   }, [isHostUser, view, currentRound, maxRounds, players, selectedPlayerHistory, playerId]);
 
-  const handleCreateRoom = async () => {
+  const [isTesting, setIsTesting] = useState(false);
+
+  const testConnection = async () => {
+    setIsTesting(true);
+    const testUrl = `http://192.168.1.25:8000/api/health`;
+    console.log("Testing connection to:", testUrl);
     try {
-      const res = await fetch(`${API_BASE}/rooms`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const res = await fetch(testUrl);
+      const data = await res.json();
+      alert(`Connection Success! Response: ${JSON.stringify(data)}`);
+    } catch (e: any) {
+      alert(`Connection Failed to ${testUrl}: ${e.message || e}`);
+      console.error("Test connection error:", e);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const handleCreateRoom = async () => {
+    const url = `${API_BASE}/rooms`;
+    console.log("Attempting to create room at:", url);
+    try {
+      const res = await fetch(url, { method: 'POST' });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errText}`);
+      }
       const data = await res.json();
       if (!data.room_code) throw new Error("Backend returned empty room_code");
       setRoomCode(data.room_code);
@@ -447,10 +487,10 @@ function App() {
       {isHostUser && view !== 'landing' && view !== 'join' && view !== 'hostLobby' && (
         <div className="glass-panel text-center flex-row" style={{ position: 'absolute', top: '16px', left: '16px', padding: '12px 24px', zIndex: 50, border: '2px solid var(--primary)', alignItems: 'center', gap: '16px' }}>
           <div style={{ background: 'white', padding: '4px', borderRadius: '8px' }}>
-            <QRCodeSVG value={`${window.location.origin}/?room=${roomCode}`} size={60} />
+            <QRCodeSVG value={getJoinUrl(roomCode)} size={60} />
           </div>
           <div className="flex-col text-left">
-            <span style={{ fontSize: '0.85rem', color: 'hsla(0,0%,100%,0.8)', fontWeight: 'bold', textTransform: 'uppercase' }}>Join at {window.location.host}</span>
+            <span style={{ fontSize: '0.85rem', color: 'hsla(0,0%,100%,0.8)', fontWeight: 'bold', textTransform: 'uppercase' }}>Join at {backendHost}/drawjudge</span>
             <span style={{ fontSize: '1.5rem', fontWeight: 900, lineHeight: 1 }}>Code: <span className="text-primary">{roomCode}</span></span>
           </div>
         </div>
@@ -464,6 +504,12 @@ function App() {
           <div className="glass-panel flex-col">
             <button className="btn-primary" onClick={handleCreateRoom} style={{ animation: 'pulse-glow 2s infinite' }}><Play size={24} /> Create Game</button>
             <button className="btn-secondary" onClick={() => setView('join')}><Users size={24} /> Join Room</button>
+            <button
+              onClick={testConnection}
+              style={{ marginTop: '20px', background: 'transparent', color: 'rgba(255,255,255,0.5)', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              {isTesting ? 'Testing...' : 'Debug: Test Connection to PC'}
+            </button>
           </div>
         </div>
       )}
@@ -482,9 +528,9 @@ function App() {
         <div className="glass-panel flex-col items-center">
           <h2 className="title-giant" style={{ fontSize: '2.5rem', marginBottom: '4px' }}>ROOM CODE</h2>
           <h1 style={{ fontSize: '4rem', fontWeight: 900, color: 'var(--primary)', textShadow: '0 0 20px hsla(320,90%,65%,0.5)', letterSpacing: '4px' }}>{roomCode}</h1>
-          <p className="subtitle" style={{ marginBottom: '0', color: 'hsla(0,0%,100%,0.8)' }}>Open a <b>New Tab</b> and enter this code to Join!</p>
+          <p className="subtitle" style={{ marginBottom: '0', color: 'hsla(0,0%,100%,0.8)' }}>Open <b>{backendHost}/drawjudge</b> and enter this code to Join!</p>
           <div className="mb-4 mt-2 p-4" style={{ background: 'white', borderRadius: '16px' }}>
-            <QRCodeSVG value={`${window.location.origin}/?room=${roomCode}`} size={160} />
+            <QRCodeSVG value={getJoinUrl(roomCode)} size={160} />
           </div>
 
           <div className="flex-row w-full mb-4" style={{ gap: '16px' }}>
