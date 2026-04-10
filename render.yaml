@@ -23,9 +23,9 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-      - key: POSTHOG_API_KEY
+      - key: VITE_POSTHOG_KEY
         sync: false
-      - key: POSTHOG_HOST
+      - key: VITE_POSTHOG_HOST
         value: https://us.i.posthog.com
       - key: ENVIRONMENT
         value: production
