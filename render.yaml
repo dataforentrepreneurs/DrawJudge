@@ -13,7 +13,12 @@ services:
         (cd Games/DrawJudge && npm install && npm run build)
       fi
       
-      # 3. Build Launcher
+      # 3. Build CoupleClash
+      if [ -d "Games/CoupleClash" ]; then
+        (cd Games/CoupleClash && npm install && npm run build)
+      fi
+      
+      # 4. Build Launcher
       if [ -d "Games/Launcher" ]; then
         (cd Games/Launcher && npm install && npm run build)
       fi
@@ -46,6 +51,8 @@ services:
         value: ../Games/Launcher/dist
       - key: DRAWJUDGE_DIST
         value: ../Games/DrawJudge/dist
+      - key: COUPLECLASH_DIST
+        value: ../Games/CoupleClash/dist
 
   # Redis instance for persistence
   - type: keyvalue

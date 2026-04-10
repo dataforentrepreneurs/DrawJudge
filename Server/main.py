@@ -142,7 +142,7 @@ async def serve_frontend(request: Request, full_path: str):
     return {
         "status": "ready", 
         "message": "PartyGamesHub API is running.",
-        "note": "Frontend 'dist' folders not found. Run 'npm run build' in Games/Launcher and Games/DrawJudge."
+        "note": "Frontend 'dist' folders not found. Ensure 'npm run build' has been completed for Launcher, DrawJudge, and CoupleClash."
     }
 
 if __name__ == "__main__":

@@ -48,6 +48,14 @@ Since you are based in Singapore, Google Play requires:
    - `party-games-hub` (Web Service)
    - `party-games-redis` (Redis)
 5. **Set Environment Variables** in the Render Dashboard:
-   - `GEMINI_API_KEY`: Your Google AI API Key.
+   - `GEMINI_API_KEY`: Your Google AI API Key (Required for DrawJudge and CoupleClash iconography).
    - `SENTRY_DSN`: Your Sentry DSN (from sentry.io).
    - `POSTHOG_API_KEY`: Your Posthog key.
+   - `ENVIRONMENT`: Set to `production`.
+
+---
+
+## 5. Troubleshooting Production
+- **404 on Icons**: Ensure `COUPLECLASH_DIST` is set and the build succeeded.
+- **WebSocket Disconnection**: Verify `REDIS_URL` is connected and active on Render.
+
