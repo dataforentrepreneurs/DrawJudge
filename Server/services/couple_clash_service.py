@@ -14,6 +14,30 @@ except ImportError:
     redis = None
     fakeredis = None
 
+MODE_KEYWORDS = {
+    "classic": [
+        "pizza", "bicycle", "beach", "mountain", "coffee", "guitar", "elephant", "airplane",
+        "camera", "umbrella", "sunflower", "bridge", "library", "forest", "desert", "waterfall",
+        "statue", "market", "castle", "skyscraper", "train", "ship", "island", "volcano", "galaxy",
+        "robot", "scientist", "chef", "doctor", "astronaut", "firefighter", "policeman", "teacher"
+    ],
+    "couples": [
+        "wedding", "ring", "heart", "kiss", "roses", "date", "dinner", "proposal", "honeymoon", "embrace", 
+        "sunset", "beach", "balcony", "champagne", "gift", "candle", "serenade", "letter", "lock", "swing", 
+        "picnic", "dance", "holding-hands", "eternity", "vows", "chocolate", "fireplace", "diamond", "hug"
+    ],
+    "bollywood": [
+        "cinema", "actor", "dance", "sari", "popcorn", "camera", "director", "action", "script", "stage", 
+        "spotlight", "hero", "villain", "musical", "celebrity", "red-carpet", "award", "fans", "stardom", 
+        "makeup", "studio", "Sholay", "Pathaan", "Dilwale", "Lagaan", "RRR", "Bahubali", "Jawan", "Don"
+    ],
+    "kids": [
+        "cat", "dog", "apple", "sun", "moon", "star", "ball", "car", "tree", "house", 
+        "flower", "bird", "toy", "doll", "balloon", "cake", "icecream", "butterfly", "fish", "rainbow", 
+        "elephant", "lion", "rabbit", "bear", "duck", "monkey", "giraffe", "zebra", "turtle"
+    ]
+}
+
 # Initialize Redis client
 REDIS_URL = os.environ.get("REDIS_URL")
 if REDIS_URL and redis:
@@ -78,6 +102,11 @@ class CoupleClashRoomState:
         
         self.player_presence = {} # player_id -> {"connected": bool, "last_seen": float}
         self.game_history = [] 
+        
+        self.game_mode = "classic"
+        self.starting_team_pref = "blue"
+        self.team_times = {"blue": 0, "pink": 0}
+        self.turn_started_at = 0
 
     def add_player(self, player_id: str, name: str) -> str:
         if player_id not in self.players:
@@ -105,15 +134,13 @@ class CoupleClashRoomState:
             
         random.shuffle(types)
         
-        # Curated keywords for recognizable images
-        keywords = [
-            "pizza", "bicycle", "beach", "mountain", "coffee", "guitar", "elephant", "airplane",
-            "camera", "umbrella", "sunflower", "bridge", "library", "forest", "desert", "waterfall",
-            "statue", "market", "castle", "skyscraper", "train", "ship", "island", "volcano", "galaxy",
-            "robot", "scientist", "chef", "doctor", "astronaut", "firefighter", "policeman", "teacher",
-            "balloon", "fireworks", "carnival", "concert", "wedding", "birthday", "party", "picnic"
-        ]
-        selected_keywords = random.sample(keywords, 25)
+        # Mode-specific keywords
+        mode_pool = MODE_KEYWORDS.get(self.game_mode, MODE_KEYWORDS["classic"])
+        if len(mode_pool) < 25:
+            # Fallback/merge if pool is small
+            mode_pool = mode_pool + random.sample(MODE_KEYWORDS["classic"], 25 - len(mode_pool))
+            
+        selected_keywords = random.sample(mode_pool, 25)
         
         self.board = []
         for i, (k, t) in enumerate(zip(selected_keywords, types)):
@@ -130,6 +157,8 @@ class CoupleClashRoomState:
         self.turn_phase = TurnPhase.WAITING_FOR_CLUE
         self.current_turn = starting_team
         self.scores = {"blue": 0, "pink": 0}
+        self.team_times = {"blue": 0, "pink": 0}
+        self.turn_started_at = time.time()
         self.save()
 
     def submit_clue(self, word: str, number: int):
@@ -189,8 +218,14 @@ class CoupleClashRoomState:
         return result
 
     def end_turn(self):
+        # Accumulate time
+        elapsed = time.time() - self.turn_started_at
+        self.team_times[self.current_turn] += int(elapsed)
+        
         self.current_turn = "pink" if self.current_turn == "blue" else "blue"
         self.turn_phase = TurnPhase.WAITING_FOR_CLUE
+        self.turn_started_at = time.time()
+        
         self.clue_word = None
         self.clue_number = 0
         self.guesses_remaining = 0
@@ -214,7 +249,11 @@ class CoupleClashRoomState:
             "scores": self.scores,
             "max_tiles": self.max_tiles,
             "player_presence": self.player_presence,
-            "votes": self.votes
+            "votes": self.votes,
+            "game_mode": self.game_mode,
+            "starting_team_pref": self.starting_team_pref,
+            "team_times": self.team_times,
+            "turn_started_at": self.turn_started_at
         }
 
     @classmethod
@@ -234,6 +273,12 @@ class CoupleClashRoomState:
         room.max_tiles = data.get("max_tiles", {"blue": 10, "pink": 9})
         room.player_presence = data.get("player_presence", {})
         room.votes = data.get("votes", {})
+        
+        room.game_mode = data.get("game_mode", "classic")
+        room.starting_team_pref = data.get("starting_team_pref", "blue")
+        room.team_times = data.get("team_times", {"blue": 0, "pink": 0})
+        room.turn_started_at = data.get("turn_started_at", 0)
+        
         return room
 
     def save(self):

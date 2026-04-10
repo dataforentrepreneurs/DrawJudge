@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Play, Heart, Bomb, ArrowRight, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import './App.css';
@@ -32,7 +32,12 @@ interface GameState {
   guesses_remaining: number;
   scores: { blue: number; pink: number };
   max_tiles: { blue: number; pink: number };
+  player_presence: Record<string, any>;
   votes: Record<number, string[]>;
+  game_mode: string;
+  starting_team_pref: string;
+  team_times: { blue: number; pink: number };
+  turn_started_at: number;
 }
 
 // --- Dynamic Host Configuration ---
@@ -72,6 +77,25 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   
   const ws = useRef<WebSocket | null>(null);
+
+  // Live Timer Logic - MUST BE AT TOP
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (gameState?.status !== 'LOBBY' && gameState?.status !== 'GAME_OVER' && gameState?.status !== undefined) {
+      const interval = setInterval(() => {
+        const now = Date.now() / 1000;
+        const diff = Math.floor(now - (gameState?.turn_started_at || now));
+        setElapsed(diff);
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [gameState?.turn_started_at, gameState?.status]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   // --- WebSocket Logic ---
   const connectWebSocket = (code: string, overrideId?: string) => {
@@ -191,6 +215,14 @@ function App() {
     ws.current?.send(JSON.stringify({ event: 'assign_captain', player_id, team }));
   };
 
+  const handleSetMode = (mode: string) => {
+    ws.current?.send(JSON.stringify({ event: 'set_game_mode', mode }));
+  };
+
+  const handleSetStartingTeam = (team: string) => {
+    ws.current?.send(JSON.stringify({ event: 'set_starting_team', team }));
+  };
+
   // --- Render Helpers ---
   if (view === 'landing') {
     return (
@@ -273,6 +305,34 @@ function App() {
         </div>
         
         {isHostUser && (
+          <div className="glass-panel" style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <h2>Host Settings</h2>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              {(['classic', 'couples', 'bollywood', 'kids'] as const).map(m => (
+                <button 
+                  key={m} 
+                  className={`btn ${gameState?.game_mode === m ? 'btn-primary' : 'btn-secondary'}`} 
+                  style={{ padding: '0.5rem 1rem' }}
+                  onClick={() => handleSetMode(m)}
+                >
+                  {m.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center' }}>
+              <span>Starting Team: </span>
+              <button 
+                className={`btn ${gameState?.starting_team_pref === 'blue' ? 'btn-primary' : 'btn-secondary'}`}
+                style={{ padding: '0.5rem 1rem' }}
+                onClick={() => handleSetStartingTeam(gameState?.starting_team_pref === 'blue' ? 'pink' : 'blue')}
+              >
+                {gameState?.starting_team_pref === 'blue' ? 'MEN (Blue)' : 'WOMEN (Pink)'}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {isHostUser && (
           <button className="btn btn-primary" style={{ marginTop: '2rem', padding: '1.5rem 4rem' }} onClick={handleStartGame}>
             Start Game <ArrowRight size={24} />
           </button>
@@ -289,11 +349,13 @@ function App() {
     <div className="app-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '1200px', marginBottom: '1rem' }}>
         <div style={{ color: gameState?.current_turn === 'blue' ? 'var(--blue-team)' : 'var(--pink-team)', fontWeight: 900, fontSize: '1.5rem' }}>
-          {gameState?.current_turn.toUpperCase()}'S TURN
+          {gameState?.current_turn.toUpperCase()}'S TURN ({formatTime(elapsed)})
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-            <span style={{ color: 'var(--blue-team)' }}>{gameState?.scores.blue}</span> - <span style={{ color: 'var(--pink-team)' }}>{gameState?.scores.pink}</span>
+            <span style={{ color: 'var(--blue-team)' }}>{gameState?.scores.blue}</span> ({formatTime(gameState?.team_times.blue || 0)})
+            {" - "}
+            <span style={{ color: 'var(--pink-team)' }}>{gameState?.scores.pink}</span> ({formatTime(gameState?.team_times.pink || 0)})
           </div>
         </div>
       </div>

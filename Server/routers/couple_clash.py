@@ -95,9 +95,27 @@ async def websocket_endpoint(
                         "players": room.players
                     })
 
+            elif event == "set_game_mode":
+                if player_id == room.host_id:
+                    room.game_mode = message.get("mode", "classic")
+                    room.save()
+                    await manager.broadcast_to_room(room_code, {
+                        "event": "room_update",
+                        "state": room.to_dict()
+                    })
+
+            elif event == "set_starting_team":
+                if player_id == room.host_id:
+                    room.starting_team_pref = message.get("team", "blue")
+                    room.save()
+                    await manager.broadcast_to_room(room_code, {
+                        "event": "room_update",
+                        "state": room.to_dict()
+                    })
+
             elif event == "start_game":
                 # Only TV host (or anyone if we want to be lax for now) can start
-                starting_team = message.get("starting_team", "blue")
+                starting_team = room.starting_team_pref
                 room.generate_board(starting_team)
                 await manager.broadcast_to_room(room_code, {
                     "event": "game_started",
