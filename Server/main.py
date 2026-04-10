@@ -77,9 +77,12 @@ async def health_check():
     return {"status": "ok", "message": "Backend is reachable!"}
 
 # Mount the compiled React Single Page Apps for production serving
-# In Render, the current directory is /opt/render/project/src/Server
 launcher_dist = os.getenv("LAUNCHER_DIST", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Games", "Launcher", "dist")))
 drawjudge_dist = os.getenv("DRAWJUDGE_DIST", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Games", "DrawJudge", "dist")))
+
+# Diagnostic logging for Render paths
+logger.info(f"DEBUG: Launcher path: {launcher_dist} (Exists: {os.path.exists(launcher_dist)})")
+logger.info(f"DEBUG: DrawJudge path: {drawjudge_dist} (Exists: {os.path.exists(drawjudge_dist)})")
 
 # Mount assets specifically (Vite defaults to /assets)
 if os.path.exists(launcher_dist):

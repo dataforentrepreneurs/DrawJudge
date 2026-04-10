@@ -17,6 +17,10 @@ services:
       if [ -d "Games/Launcher" ]; then
         (cd Games/Launcher && npm install && npm run build)
       fi
+      
+      # 4. Verify builds
+      echo "VERIFYING BUILDS:"
+      ls -d Games/*/dist || echo "No dist folders found!"
     startCommand: |
       cd Server
       python -m uvicorn main:app --host 0.0.0.0 --port $PORT
@@ -39,9 +43,9 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: LAUNCHER_DIST
-        value: /opt/render/project/src/Games/Launcher/dist
+        value: ../Games/Launcher/dist
       - key: DRAWJUDGE_DIST
-        value: /opt/render/project/src/Games/DrawJudge/dist
+        value: ../Games/DrawJudge/dist
 
   # Redis instance for persistence
   - type: keyvalue
