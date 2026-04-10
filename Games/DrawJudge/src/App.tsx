@@ -40,11 +40,25 @@ const playTadaSound = () => {
   } catch (e) { }
 };
 
-// Hardcoded IP for local network testing on Chromecast
-const backendHost = import.meta.env.VITE_BACKEND_URL || '192.168.1.25:8000';
+// Determine the backend host dynamically (Supports Local IP and Production URLs)
+const getDynamicHost = () => {
+  const envUrl = import.meta.env.VITE_BACKEND_URL;
+  if (envUrl) return envUrl;
+  
+  const currentHost = window.location.host;
+  // If we are running on a standard web host (like Render), use the current host
+  if (currentHost && !currentHost.includes('localhost') && !currentHost.startsWith('127.0.0.1')) {
+    return currentHost;
+  }
+  
+  // Default to your local IP for TV/Chromecast testing at home
+  return '192.168.1.25:8000';
+};
+
+const backendHost = getDynamicHost();
 
 // Helper to determine if we should use secure protocols
-const isSecure = !backendHost.includes('192.168.') && !backendHost.includes('localhost');
+const isSecure = window.location.protocol === 'https:' || (!backendHost.includes('192.168.') && !backendHost.includes('localhost') && !backendHost.includes('127.0.0.1'));
 const protocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
 
