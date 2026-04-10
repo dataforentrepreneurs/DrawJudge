@@ -9,20 +9,13 @@ from typing import Dict, List, Optional
 
 from models.schemas import AIScoreResponse, ScoreBreakdown, BatchEvaluationResult  # type: ignore
 
-try:
-    from google import genai  # type: ignore
-    from google.genai import types # type: ignore
-    HAS_GENAI = True
-except ImportError:
-    HAS_GENAI = False
+from google import genai
+from google.genai import types
 
 _GEMINI_CLIENT: Optional["genai.Client"] = None
 
 def get_gemini_client():
     global _GEMINI_CLIENT
-
-    if not HAS_GENAI:
-        raise ImportError("The 'google-genai' package is not installed. Failed to import.")
 
     if _GEMINI_CLIENT is None:
         api_key = os.environ.get("GEMINI_API_KEY")

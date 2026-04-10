@@ -9,5 +9,4 @@ python-dotenv
 redis
 fakeredis
 posthog
-google-generativeai
 sentry-sdk[fastapi]

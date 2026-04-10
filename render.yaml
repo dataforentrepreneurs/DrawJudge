@@ -5,17 +5,17 @@ services:
     env: python
     plan: free
     buildCommand: |
-      # Install python dependencies
+      # 1. Install python dependencies
       pip install -r Server/requirements.txt
       
-      # Build Launcher (Only if folder exists)
-      if [ -d "Games/Launcher" ]; then
-        cd Games/Launcher && npm install && npm run build && cd ../..
+      # 2. Build DrawJudge FIRST (so Launcher's postbuild can copy it)
+      if [ -d "Games/DrawJudge" ]; then
+        (cd Games/DrawJudge && npm install && npm run build)
       fi
       
-      # Build DrawJudge (Only if folder exists)
-      if [ -d "Games/DrawJudge" ]; then
-        cd Games/DrawJudge && npm install && npm run build && cd ../..
+      # 3. Build Launcher
+      if [ -d "Games/Launcher" ]; then
+        (cd Games/Launcher && npm install && npm run build)
       fi
     startCommand: |
       cd Server

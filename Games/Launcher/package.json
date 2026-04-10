@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "postbuild": "powershell -Command \"if (Test-Path ../DrawJudge/dist) { if (!(Test-Path dist/drawjudge)) { New-Item -ItemType Directory -Path dist/drawjudge }; Copy-Item -Path ../DrawJudge/dist/* -Destination dist/drawjudge -Recurse -Force }\"",
+    "postbuild": "node scripts/copy-dist.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

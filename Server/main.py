@@ -14,7 +14,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routers import rooms, game
-import google.generativeai as genai
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO)
@@ -67,14 +66,6 @@ app.add_middleware(
     allow_methods=["*"],  
     allow_headers=["*"],  
 )
-
-# === Unified Gemini Proxy ===
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-
-def get_gemini_model(model_name="gemini-1.5-flash"):
-    return genai.GenerativeModel(model_name)
 
 # Mount modular API routers
 app.include_router(rooms.router, prefix="/api/drawjudge")
