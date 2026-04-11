@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play, Heart, Bomb, ArrowRight, User, X, RefreshCw } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import './App.css';
 
@@ -83,7 +84,11 @@ function App() {
     return {
       host,
       apiBase: `${protocol}://${host}/api/coupleclash`,
-      wsBase: `${wsProtocol}://${host}/ws/coupleclash/rooms`
+      wsBase: `${wsProtocol}://${host}/ws/coupleclash/rooms`,
+      getJoinUrl: (code: string) => {
+        const h = host.startsWith('http') ? host : `${protocol}://${host}`;
+        return `${h}/coupleclash/?room=${code}`;
+      }
     };
   });
 
@@ -98,6 +103,21 @@ function App() {
   const [errorTiles, setErrorTiles] = useState<Set<number>>(new Set());
   
   const ws = useRef<WebSocket | null>(null);
+  const viewRef = useRef(view);
+
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+
+  // Parse room code from URL on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+    if (roomParam) {
+      setRoomCode(roomParam.toUpperCase());
+      // No need to set view to join manually as landing has the room input
+    }
+  }, []);
 
   // Live Timer Logic - MUST BE AT TOP
   const [elapsed, setElapsed] = useState(0);
@@ -315,6 +335,14 @@ function App() {
         <h1 className="title-giant">Lobby</h1>
         <p className="subtitle">Room Code: <span style={{ color: 'var(--blue-team)', fontWeight: '900' }}>{roomCode}</span></p>
         
+        {isHostUser && (
+          <div className="glass-panel" style={{ textAlign: 'center', marginBottom: '1.5rem', animation: 'fadeIn 1s' }}>
+            <p className="subtitle" style={{ marginBottom: '1rem' }}>Scan to Join or browse to <b>{backendConfig.host}/coupleclash</b></p>
+            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', display: 'inline-block', boxShadow: '0 0 30px rgba(255,255,255,0.1)' }}>
+              <QRCodeSVG value={backendConfig.getJoinUrl(roomCode)} size={200} />
+            </div>
+          </div>
+        )}
         <div className="glass-panel" style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '300px' }}>
             <h2>Blue Team (Men)</h2>
@@ -399,6 +427,33 @@ function App() {
 
   return (
     <div className={`app-container ${isHostUser ? 'host-view' : ''}`}>
+      {/* Persistent Room Info for Host */}
+      {isHostUser && (
+        <div 
+          className="glass-panel" 
+          style={{ 
+            position: 'absolute', 
+            top: '20px', 
+            left: '20px', 
+            padding: '12px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            zIndex: 100,
+            border: '2px solid rgba(255,255,255,0.1)',
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <div style={{ background: 'white', padding: '4px', borderRadius: '4px' }}>
+            <QRCodeSVG value={backendConfig.getJoinUrl(roomCode)} size={50} />
+          </div>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: '0.7rem', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>Join at {backendConfig.host}/coupleclash</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>Code: <span style={{ color: 'var(--blue-team)' }}>{roomCode}</span></div>
+          </div>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '1200px', marginBottom: '1rem' }}>
         <div style={{ color: gameState?.current_turn === 'blue' ? 'var(--blue-team)' : 'var(--pink-team)', fontWeight: 900, fontSize: '1.5rem' }}>
           {gameState?.current_turn.toUpperCase()}'S TURN ({formatTime(elapsed)})
