@@ -262,3 +262,51 @@ body {
   color: white;
   filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
 }
+
+.refresh-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refresh-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.refresh-btn {
+  background: var(--blue-team);
+  color: white;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.refresh-btn span {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+.refresh-btn svg {
+  animation: none;
+}
+
+.refresh-overlay:active .refresh-btn {
+  transform: scale(0.95);
+}

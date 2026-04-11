@@ -191,6 +191,15 @@ async def websocket_endpoint(
                     "state": room.to_dict()
                 })
                 
+            elif event == "reroll_tile":
+                tile_id = message.get("tile_id")
+                if tile_id is not None:
+                    room.reroll_tile(int(tile_id))
+                    await manager.broadcast_to_room(room_code, {
+                        "event": "sync_state",
+                        "state": room.to_dict()
+                    })
+
             elif event == "reset_game":
                 room.status = TurnPhase.LOBBY
                 room.turn_phase = TurnPhase.LOBBY

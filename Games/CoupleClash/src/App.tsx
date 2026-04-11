@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Heart, Bomb, ArrowRight, User, X } from 'lucide-react';
+import { Play, Heart, Bomb, ArrowRight, User, X, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import './App.css';
 
@@ -95,6 +95,7 @@ function App() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [isHostUser, setIsHostUser] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [errorTiles, setErrorTiles] = useState<Set<number>>(new Set());
   
   const ws = useRef<WebSocket | null>(null);
 
@@ -150,6 +151,10 @@ function App() {
       if (data.event === 'sync_state' || data.event === 'game_started' || data.event === 'clue_submitted' || data.event === 'tile_revealed' || data.event === 'turn_ended' || data.event === 'game_reset') {
         setGameState(data.state);
         
+        // Clear errors for tiles that have potentially changed
+        if (data.event === 'sync_state') {
+          setErrorTiles(new Set());
+        }
         // Prioritize server-sent is_host, fallback to ID comparison using the latest REF
         const amIHost = data.is_host === true || data.state.host_id === playerIdRef.current;
         setIsHostUser(amIHost);
@@ -230,6 +235,16 @@ function App() {
 
   const handleVoteTile = (tileId: number) => {
     ws.current?.send(JSON.stringify({ event: 'vote_tile', tile_id: tileId }));
+  };
+
+  const handleRerollTile = (tileId: number) => {
+    ws.current?.send(JSON.stringify({ event: 'reroll_tile', tile_id: tileId }));
+    // Optimistically clear error while waiting for sync
+    setErrorTiles(prev => {
+      const next = new Set(prev);
+      next.delete(tileId);
+      return next;
+    });
   };
 
   const handleAssignCaptain = (player_id: string, team: 'blue' | 'pink') => {
@@ -429,7 +444,24 @@ function App() {
               }}
             >
               <div className="tile-front" style={{ position: 'relative' }}>
-                <img src={tile.image} alt="tile" />
+                <img 
+                  src={tile.image} 
+                  alt="tile" 
+                  onError={() => setErrorTiles(prev => new Set(prev).add(tile.id))}
+                />
+
+                {/* Refresh Overlay for broken images */}
+                {errorTiles.has(tile.id) && !tile.revealed && (
+                  <div className="refresh-overlay" onClick={(e) => {
+                    e.stopPropagation();
+                    handleRerollTile(tile.id);
+                  }}>
+                    <div className="refresh-btn">
+                      <RefreshCw size={24} />
+                      <span>Refresh</span>
+                    </div>
+                  </div>
+                )}
                 
                 {/* Reveal Overlay (80% opaque color) */}
                 {tile.revealed && (

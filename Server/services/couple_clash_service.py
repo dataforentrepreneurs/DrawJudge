@@ -81,15 +81,17 @@ class TurnPhase:
     GAME_OVER = "GAME_OVER"
 
 class Tile:
-    def __init__(self, id: int, image: str, type: str):
+    def __init__(self, id: int, image: str, type: str, keyword: str = ""):
         self.id = id
         self.image = image
         self.type = type # "blue", "pink", "neutral", "trap"
+        self.keyword = keyword
         self.revealed = False
 
     def to_dict(self):
         return {
             "id": self.id,
+            "keyword": self.keyword,
             "image": self.image,
             "type": self.type,
             "revealed": self.revealed
@@ -98,6 +100,7 @@ class Tile:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]):
         tile = cls(data["id"], data["image"], data["type"])
+        tile.keyword = data.get("keyword", "")
         tile.revealed = data.get("revealed", False)
         return tile
 
@@ -170,7 +173,7 @@ class CoupleClashRoomState:
         self.board = []
         for i, (k, t) in enumerate(zip(selected_keywords, types)):
             img_url = get_emoji_url(k)
-            self.board.append(Tile(i, img_url, t))
+            self.board.append(Tile(i, img_url, t, k))
             
         self.status = TurnPhase.WAITING_FOR_CLUE
         self.turn_phase = TurnPhase.WAITING_FOR_CLUE
@@ -179,6 +182,26 @@ class CoupleClashRoomState:
         self.team_times = {"blue": 0, "pink": 0}
         self.turn_started_at = time.time()
         self.save()
+
+    def reroll_tile(self, tile_id: int):
+        """Replaces a tile's image with a new keyword from the pool."""
+        tile = next((t for t in self.board if t.id == tile_id), None)
+        if not tile or tile.revealed:
+            return
+
+        mode_pool = list(MODE_KEYWORDS.get(self.game_mode, MODE_KEYWORDS["classic"]))
+        used_keywords = {t.keyword for t in self.board}
+        available = [k for k in mode_pool if k not in used_keywords]
+
+        if not available:
+            # If we run out, just pick one that isn't the current one
+            available = [k for k in mode_pool if k != tile.keyword]
+
+        if available:
+            new_keyword = random.choice(available)
+            tile.keyword = new_keyword
+            tile.image = get_emoji_url(new_keyword)
+            self.save()
 
     def submit_clue(self, word: str, number: int):
         if self.turn_phase == TurnPhase.WAITING_FOR_CLUE:
