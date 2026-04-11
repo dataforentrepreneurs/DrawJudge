@@ -400,8 +400,8 @@ function App() {
       connectWebSocket(data.room_code, true, data.host_id);
       setView('hostLobby');
       posthog.capture('Game_Created', { room_code: data.room_code });
-    } catch (e) {
-      alert("Failed creating room! Ensure backend is running. " + e);
+    } catch (e: any) {
+      alert(`Failed creating room! URL: ${url}. Error: ${e.message || e}`);
     }
   };
 

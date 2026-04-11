@@ -48,12 +48,14 @@ const getDynamicHost = () => {
   if (currentHost && !currentHost.includes('localhost') && !currentHost.startsWith('127.0.0.1')) {
     return currentHost;
   }
-  return 'localhost:8000'; // Default local backend
+  // Default to your Render backend for production TV/mobile connectivity
+  return 'party-games-hub-0qly.onrender.com';
 };
 
 const backendHost = getDynamicHost();
-const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
-const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const isSecure = true; // Force true for Render backend (HTTPS/WSS)
+const protocol = isSecure ? 'https' : 'http';
+const wsProtocol = isSecure ? 'wss' : 'ws';
 
 const API_BASE = `${protocol}://${backendHost}/api/coupleclash`;
 const WS_BASE = `${wsProtocol}://${backendHost}/ws/coupleclash/rooms`;
@@ -179,9 +181,10 @@ function App() {
       
       setRoomCode(data.room_code);
       connectWebSocket(data.room_code, data.host_id);
-    } catch (e) {
+    } catch (e: any) {
       console.error("DEBUG: handleCreateRoom FAILED:", e);
-      alert("Failed to create room. Is the backend server running?");
+      const url = `${API_BASE}/rooms`;
+      alert(`Failed to create room! URL: ${url}. Error: ${e.message || e}`);
     }
   };
 

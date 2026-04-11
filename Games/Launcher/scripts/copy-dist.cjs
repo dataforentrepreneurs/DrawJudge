@@ -1,9 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const src = path.join(__dirname, '../../DrawJudge/dist');
-const dest = path.join(__dirname, '../dist/drawjudge');
-
 function copyRecursiveSync(src, dest) {
     if (!fs.existsSync(src)) {
         console.log(`Source directory not found: ${src}. Skipping copy.`);
@@ -26,13 +23,19 @@ function copyRecursiveSync(src, dest) {
     }
 }
 
+function copyGame(gameName) {
+    const src = path.join(__dirname, `../../${gameName}/dist`);
+    const dest = path.join(__dirname, `../dist/${gameName.toLowerCase()}`);
+    console.log(`Copying ${gameName} from ${src} to ${dest}`);
+    copyRecursiveSync(src, dest);
+}
+
 console.log(`Starting cross-platform copy dist...`);
-console.log(`From: ${src}`);
-console.log(`To: ${dest}`);
 
 try {
-    copyRecursiveSync(src, dest);
-    console.log('Successfully copied DrawJudge dist to Launcher dist.');
+    copyGame('DrawJudge');
+    copyGame('CoupleClash');
+    console.log('Successfully copied game dists to Launcher dist.');
 } catch (err) {
     console.error('Error during cross-platform copy:', err);
     // On Render, we don't want to crash the whole build if this optional local step fails
