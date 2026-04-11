@@ -149,12 +149,28 @@ function App() {
       const data = JSON.parse(event.data);
       console.log("DEBUG: Received message:", data.event);
       if (data.event === 'sync_state' || data.event === 'game_started' || data.event === 'clue_submitted' || data.event === 'tile_revealed' || data.event === 'turn_ended' || data.event === 'game_reset') {
-        setGameState(data.state);
+        const newState = data.state;
         
-        // Clear errors for tiles that have potentially changed
-        if (data.event === 'sync_state') {
-          setErrorTiles(new Set());
-        }
+        setGameState(prev => {
+          // If a specific tile's image was updated on the server, clear its local error state
+          if (prev && newState) {
+            newState.board.forEach((tile: any) => {
+              const oldTile = prev.board.find(t => t.id === tile.id);
+              if (oldTile && oldTile.image !== tile.image) {
+                setErrorTiles(errors => {
+                  if (errors.has(tile.id)) {
+                    const next = new Set(errors);
+                    next.delete(tile.id);
+                    return next;
+                  }
+                  return errors;
+                });
+              }
+            });
+          }
+          return newState;
+        });
+        
         // Prioritize server-sent is_host, fallback to ID comparison using the latest REF
         const amIHost = data.is_host === true || data.state.host_id === playerIdRef.current;
         setIsHostUser(amIHost);
