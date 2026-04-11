@@ -314,7 +314,7 @@ function App() {
           <button className="btn btn-primary" style={{ width: '100%', marginBottom: '1rem' }} onClick={handleCreateRoom}>
             <Play size={20} /> Create Room
           </button>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+          <div className="input-group" style={{ marginBottom: '1rem' }}>
             <input 
               className="subtitle" 
               style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', color: 'white', margin: 0 }}
@@ -472,7 +472,7 @@ function App() {
             <div>
               <h2 className="subtitle">Waiting for Captain to give a clue...</h2>
               {isMyTurn && isCaptain && (
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                <div className="input-group-row" style={{ justifyContent: 'center' }}>
                   <input id="clue-word" className="subtitle" style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', padding: '1rem', color: 'white', margin: 0 }} placeholder="One word clue" />
                   <input id="clue-num" type="number" className="subtitle" style={{ width: '80px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', padding: '1rem', color: 'white', margin: 0 }} defaultValue={1} />
                   <button className="btn btn-primary" onClick={() => handleSubmitClue(

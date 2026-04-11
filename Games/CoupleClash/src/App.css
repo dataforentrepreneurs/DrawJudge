@@ -310,3 +310,45 @@ body {
 .refresh-overlay:active .refresh-btn {
   transform: scale(0.95);
 }
+
+/* Responsive Helpers */
+.input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.input-group-row {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    padding: 1rem;
+  }
+  
+  .title-giant {
+    font-size: 2.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .glass-panel {
+    padding: 1.5rem;
+  }
+  
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .input-group-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .input-group-row input, .input-group-row button {
+    width: 100% !important;
+  }
+}
