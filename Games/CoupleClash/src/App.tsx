@@ -101,7 +101,7 @@ function App() {
   const [isHostUser, setIsHostUser] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [errorTiles, setErrorTiles] = useState<Set<number>>(new Set());
-  
+
   const ws = useRef<WebSocket | null>(null);
   const viewRef = useRef(view);
 
@@ -152,7 +152,7 @@ function App() {
     socket.onclose = (event) => {
       setIsConnected(false);
       console.log("DEBUG: WebSocket closed. Code:", event.code, "Reason:", event.reason);
-      
+
       // If room not found (4004), don't retry. Kick back to landing.
       if (event.code === 4004) {
         console.warn("DEBUG: Room not found on server. Reverting to landing page.");
@@ -161,7 +161,7 @@ function App() {
         setView('landing');
       } else {
         console.log("DEBUG: Socket closed for other reason. Retrying in 3s...");
-        setTimeout(() => connectWebSocket(code), 3000); 
+        setTimeout(() => connectWebSocket(code), 3000);
       }
     };
 
@@ -170,7 +170,7 @@ function App() {
       console.log("DEBUG: Received message:", data.event);
       if (data.event === 'sync_state' || data.event === 'game_started' || data.event === 'clue_submitted' || data.event === 'tile_revealed' || data.event === 'turn_ended' || data.event === 'game_reset') {
         const newState = data.state;
-        
+
         setGameState(prev => {
           // If a specific tile's image was updated on the server, clear its local error state
           if (prev && newState) {
@@ -190,11 +190,11 @@ function App() {
           }
           return newState;
         });
-        
+
         // Prioritize server-sent is_host, fallback to ID comparison using the latest REF
         const amIHost = data.is_host === true || data.state.host_id === playerIdRef.current;
         setIsHostUser(amIHost);
-        
+
         if (data.state.status === 'LOBBY') setView('lobby');
         else if (data.state.status === 'GAME_OVER') setView('game_over');
         else setView('game');
@@ -225,19 +225,19 @@ function App() {
       const url = `${backendConfig.apiBase}/rooms`;
       console.log(`DEBUG: POST calling ${url}`);
       const res = await fetch(url, { method: 'POST' });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP Error! Status: ${res.status}`);
       }
-      
+
       const data = await res.json();
       console.log("DEBUG: POST success. Received:", data);
-      
+
       // CRITICAL: Store the host_id from the server so the WebSocket recognizes us as Host
       localStorage.setItem('cc_player_id', data.host_id);
-      setPlayerId(data.host_id); 
+      setPlayerId(data.host_id);
       playerIdRef.current = data.host_id; // Sync the Ref immediately!
-      
+
       setRoomCode(data.room_code);
       connectWebSocket(data.room_code, data.host_id);
     } catch (e: any) {
@@ -308,23 +308,23 @@ function App() {
           <p className="subtitle">Picture Wars: Men vs Women</p>
         </div>
         <div className="glass-panel" style={{ maxWidth: '400px' }}>
-          <input 
-            className="subtitle" 
+          <input
+            className="subtitle"
             style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', color: 'white' }}
-            placeholder="Your Name" 
-            value={playerName} 
-            onChange={e => setPlayerName(e.target.value)} 
+            placeholder="Your Name"
+            value={playerName}
+            onChange={e => setPlayerName(e.target.value)}
           />
           <button className="btn btn-primary" style={{ width: '100%', marginBottom: '1rem' }} onClick={handleCreateRoom}>
             <Play size={20} /> Create Room
           </button>
           <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <input 
-              className="subtitle" 
+            <input
+              className="subtitle"
               style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', color: 'white', margin: 0 }}
-              placeholder="Room Code" 
-              value={roomCode} 
-              onChange={e => setRoomCode(e.target.value.toUpperCase())} 
+              placeholder="Room Code"
+              value={roomCode}
+              onChange={e => setRoomCode(e.target.value.toUpperCase())}
             />
             <button className="btn btn-secondary" onClick={handleJoinRoom}>Join</button>
           </div>
@@ -338,7 +338,7 @@ function App() {
       <div className="app-container">
         <h1 className="title-giant">Lobby</h1>
         <p className="subtitle">Room Code: <span style={{ color: 'var(--blue-team)', fontWeight: '900' }}>{roomCode}</span></p>
-        
+
         {isHostUser && (
           <div className="glass-panel" style={{ textAlign: 'center', marginBottom: '1.5rem', animation: 'fadeIn 1s' }}>
             <p className="subtitle" style={{ marginBottom: '1rem' }}>Scan to Join or browse to <b>{backendConfig.host}/coupleclash</b></p>
@@ -355,7 +355,7 @@ function App() {
               {Object.entries(gameState?.players || {}).filter(([_, p]) => p.team === 'blue').map(([id, p]) => (
                 <li key={id} style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span>
-                    {p.name} {id === playerId && '(You)'} 
+                    {p.name} {id === playerId && '(You)'}
                     {id === gameState?.blue_captain && <span className="badge" style={{ marginLeft: '8px', background: 'var(--blue-team)' }}>Captain</span>}
                   </span>
                   {isHostUser && id !== gameState?.blue_captain && (
@@ -368,13 +368,13 @@ function App() {
             </ul>
           </div>
           <div style={{ flex: 1, minWidth: '300px' }}>
-            <h2>Baby Pink Team (Women)</h2>
-            <button className="btn btn-secondary" style={{ margin: '1rem 0' }} onClick={() => handleSelectTeam('pink')}>Join Baby Pink</button>
+            <h2>Pink Team (Women)</h2>
+            <button className="btn btn-secondary" style={{ margin: '1rem 0' }} onClick={() => handleSelectTeam('pink')}>Join Sassy Pink</button>
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {Object.entries(gameState?.players || {}).filter(([_, p]) => p.team === 'pink').map(([id, p]) => (
                 <li key={id} style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span>
-                    {p.name} {id === playerId && '(You)'} 
+                    {p.name} {id === playerId && '(You)'}
                     {id === gameState?.pink_captain && <span className="badge" style={{ marginLeft: '8px', background: 'var(--pink-team)' }}>Captain</span>}
                   </span>
                   {isHostUser && id !== gameState?.pink_captain && (
@@ -387,15 +387,15 @@ function App() {
             </ul>
           </div>
         </div>
-        
+
         {isHostUser && (
           <div className="glass-panel" style={{ marginTop: '2rem', textAlign: 'center' }}>
             <h2>Host Settings</h2>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
               {(['classic', 'couples', 'bollywood', 'kids'] as const).map(m => (
-                <button 
-                  key={m} 
-                  className={`btn ${gameState?.game_mode === m ? 'btn-primary' : 'btn-secondary'}`} 
+                <button
+                  key={m}
+                  className={`btn ${gameState?.game_mode === m ? 'btn-primary' : 'btn-secondary'}`}
                   style={{ padding: '0.5rem 1rem' }}
                   onClick={() => handleSetMode(m)}
                 >
@@ -405,17 +405,17 @@ function App() {
             </div>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center' }}>
               <span>Starting Team: </span>
-              <button 
+              <button
                 className={`btn ${gameState?.starting_team_pref === 'blue' ? 'btn-primary' : 'btn-secondary'}`}
                 style={{ padding: '0.5rem 1rem' }}
                 onClick={() => handleSetStartingTeam(gameState?.starting_team_pref === 'blue' ? 'pink' : 'blue')}
               >
-                {gameState?.starting_team_pref === 'blue' ? 'MEN (Blue)' : 'WOMEN (Baby Pink)'}
+                {gameState?.starting_team_pref === 'blue' ? 'MEN (Blue)' : 'WOMEN (Sassy Pink)'}
               </button>
             </div>
           </div>
         )}
-        
+
         {isHostUser && (
           <button className="btn btn-primary" style={{ marginTop: '2rem', padding: '1.5rem 4rem' }} onClick={handleStartGame}>
             Start Game <ArrowRight size={24} />
@@ -433,16 +433,16 @@ function App() {
     <div className={`app-container ${isHostUser ? 'host-view' : ''}`}>
       {/* Persistent Room Info for Host */}
       {isHostUser && (
-        <div 
-          className="glass-panel" 
-          style={{ 
-            position: 'absolute', 
-            bottom: '20px', 
-            left: '20px', 
-            padding: '12px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px', 
+        <div
+          className="glass-panel"
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            left: '20px',
+            padding: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
             zIndex: 100,
             border: '2px solid rgba(255,255,255,0.1)',
             background: 'rgba(0,0,0,0.6)',
@@ -472,54 +472,54 @@ function App() {
       </div>
 
       <div className="glass-panel" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          {gameState?.turn_phase === 'WAITING_FOR_CLUE' ? (
-            <div>
-              <h2 className="subtitle">Waiting for Captain to give a clue...</h2>
-              {isMyTurn && isCaptain && (
-                <div className="input-group-row" style={{ justifyContent: 'center' }}>
-                  <input id="clue-word" className="subtitle" style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', padding: '1rem', color: 'white', margin: 0 }} placeholder="One word clue" />
-                  <input id="clue-num" type="number" className="subtitle" style={{ width: '80px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', padding: '1rem', color: 'white', margin: 0 }} defaultValue={1} />
-                  <button className="btn btn-primary" onClick={() => handleSubmitClue(
-                    (document.getElementById('clue-word') as HTMLInputElement).value,
-                    parseInt((document.getElementById('clue-num') as HTMLInputElement).value)
-                  )}>Send</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div>
-              <h2 className="title-giant" style={{ fontSize: '3rem', margin: 0 }}>{gameState?.clue_word} : {gameState?.clue_number}</h2>
-              <p className="subtitle" style={{ marginBottom: '1rem' }}>Guesses remaining: {gameState?.guesses_remaining}</p>
-              
-              {isHostUser && (
-                <button 
-                  className="btn btn-secondary" 
-                  style={{ padding: '0.5rem 1.5rem', fontSize: '1rem', marginTop: '0.5rem' }} 
-                  onClick={handleEndTurn}
-                >
-                  End {gameState?.current_turn.toUpperCase()} Turn
-                </button>
-              )}
-            </div>
-          )}
+        {gameState?.turn_phase === 'WAITING_FOR_CLUE' ? (
+          <div>
+            <h2 className="subtitle">Waiting for Captain to give a clue...</h2>
+            {isMyTurn && isCaptain && (
+              <div className="input-group-row" style={{ justifyContent: 'center' }}>
+                <input id="clue-word" className="subtitle" style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', padding: '1rem', color: 'white', margin: 0 }} placeholder="One word clue" />
+                <input id="clue-num" type="number" className="subtitle" style={{ width: '80px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '12px', padding: '1rem', color: 'white', margin: 0 }} defaultValue={1} />
+                <button className="btn btn-primary" onClick={() => handleSubmitClue(
+                  (document.getElementById('clue-word') as HTMLInputElement).value,
+                  parseInt((document.getElementById('clue-num') as HTMLInputElement).value)
+                )}>Send</button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <h2 className="title-giant" style={{ fontSize: '3rem', margin: 0 }}>{gameState?.clue_word} : {gameState?.clue_number}</h2>
+            <p className="subtitle" style={{ marginBottom: '1rem' }}>Guesses remaining: {gameState?.guesses_remaining}</p>
+
+            {isHostUser && (
+              <button
+                className="btn btn-secondary"
+                style={{ padding: '0.5rem 1.5rem', fontSize: '1rem', marginTop: '0.5rem' }}
+                onClick={handleEndTurn}
+              >
+                End {gameState?.current_turn.toUpperCase()} Turn
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="game-grid">
         {gameState?.board.map(tile => {
           return (
-            <div 
-              key={tile.id} 
+            <div
+              key={tile.id}
               className={`tile`}
               onClick={() => {
                 const currentRole = isHostRole ? 'Host' : (isCaptain ? 'Captain' : 'Player');
                 console.log(`DEBUG: Tile ${tile.id} clicked. role: ${currentRole}, myId: ${playerIdRef.current}, hostId: ${gameState?.host_id}, phase: ${gameState?.turn_phase}`);
-                
+
                 if (tile.revealed) return;
 
                 // TV Host (Creator) reveals
                 if (isHostRole) {
                   handleRevealTile(tile.id);
-                } 
+                }
                 // Players vote (only if NOT a captain)
                 else if (!isCaptain) {
                   handleVoteTile(tile.id);
@@ -529,9 +529,9 @@ function App() {
               }}
             >
               <div className="tile-front" style={{ position: 'relative' }}>
-                <img 
-                  src={tile.image} 
-                  alt="tile" 
+                <img
+                  src={tile.image}
+                  alt="tile"
                   onError={() => setErrorTiles(prev => new Set(prev).add(tile.id))}
                 />
 
@@ -547,14 +547,14 @@ function App() {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Reveal Overlay (80% opaque color) */}
                 {tile.revealed && (
                   <div className={`tile-reveal-overlay ${tile.type}`}>
                     {tile.type === 'trap' ? <Bomb size={48} /> : (tile.type === 'neutral' ? <X size={48} /> : <Heart size={48} />)}
                   </div>
                 )}
-                
+
                 {/* Vote Indicators (Avatars/Icons) */}
                 <div style={{ position: 'absolute', top: 5, right: 5, display: 'flex', flexWrap: 'wrap', gap: '2px', justifyContent: 'flex-end', maxWidth: '60px' }}>
                   {gameState.votes[tile.id]?.map((vid) => (
@@ -573,7 +573,7 @@ function App() {
           );
         })}
       </div>
-      
+
       {!isConnected && (
         <div style={{ position: 'fixed', bottom: 20, right: 20, background: 'red', padding: '1rem', borderRadius: '12px' }}>
           Disconnected. Reconnecting...
