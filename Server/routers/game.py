@@ -19,9 +19,10 @@ if os.path.exists(frontend_env_path):
     load_dotenv(frontend_env_path)
 
 POSTHOG_KEY = os.environ.get("POSTHOG_API_KEY") or os.environ.get("VITE_POSTHOG_KEY")
+POSTHOG_HOST = os.environ.get("POSTHOG_HOST") or os.environ.get("VITE_POSTHOG_HOST") or "https://us.i.posthog.com"
 ph_client = None
 if POSTHOG_KEY:
-    ph_client = Posthog(POSTHOG_KEY, host="https://eu.i.posthog.com")
+    ph_client = Posthog(POSTHOG_KEY, host=POSTHOG_HOST)
 
 FALLBACK_PROMPTS = {
     "Family": ["A dog flying a kite", "A friendly monster baking cookies", "A penguin on vacation"],
