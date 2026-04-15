@@ -45,10 +45,10 @@ MODE_KEYWORDS = {
 }
 
 RELIABLE_IMAGE_MAP = {
-    "Shah Rukh Khan": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Shahrukh_Khan_CE.jpg/400px-Shahrukh_Khan_CE.jpg",
+    "Shah Rukh Khan": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Shah_Rukh_Khan_graces_the_launch_of_the_new_Santro.jpg",
     "Salman Khan": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Salman_Khan_at_Renault_Star_Guild_Awards.jpg/400px-Salman_Khan_at_Renault_Star_Guild_Awards.jpg",
-    "Deepika Padukone": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Deepika_Padukone_at_Grazia_Millennial_Awards_2022_%281%29.jpg/400px-Deepika_Padukone_at_Grazia_Millennial_Awards_2022_%281%29.jpg",
-    "Amitabh Bachchan": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Amitabh_Bachchan_2011.jpg/400px-Amitabh_Bachchan_2011.jpg",
+    "Deepika Padukone": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Deepika_Padukone_2025_%281%29.png/500px-Deepika_Padukone_2025_%281%29.png",
+    "Amitabh Bachchan": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Indian_actor_Amitabh_Bachchan.jpg/500px-Indian_actor_Amitabh_Bachchan.jpg",
     "Aamir Khan": "https://upload.wikimedia.org/wikipedia/commons/6/65/Aamir_Khan_at_the_success_bash_of_Secret_Superstar.jpg",
     "Gabbar Singh": "https://upload.wikimedia.org/wikipedia/en/3/3c/Gabbar_Singh_(Amjad_Khan).jpg",
     "Sholay": "https://upload.wikimedia.org/wikipedia/en/thumb/5/52/Sholay-poster.jpg/400px-Sholay-poster.jpg",
@@ -71,7 +71,7 @@ RELIABLE_IMAGE_MAP = {
     "Dev Anand": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Dev_Anand_interacting_with_the_Press_at_the_36th_International_Film_Festival_of_India_%E2%80%93_2005_in_Panaji%2C_Goa_on_November_26%2C_2005.jpg/500px-Dev_Anand_interacting_with_the_Press_at_the_36th_International_Film_Festival_of_India_%E2%80%93_2005_in_Panaji%2C_Goa_on_November_26%2C_2005.jpg",
     "Lagaan": "https://upload.wikimedia.org/wikipedia/en/b/b6/Lagaan.jpg",
     "Dangal": "https://upload.wikimedia.org/wikipedia/en/9/99/Dangal_Poster.jpg",
-    "Bahubali": "https://upload.wikimedia.org/wikipedia/en/5/5f/Baahubali_The_Beginning_poster.jpg"
+    "Bahubali": "https://upload.wikimedia.org/wikipedia/en/5/5f/Baahubali_The_Beginning_poster.jpg",
 }
 
 def get_emoji_url(keyword: str) -> str:
