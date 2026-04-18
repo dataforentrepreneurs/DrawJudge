@@ -118,6 +118,7 @@ function App() {
   const [roundEndTime, setRoundEndTime] = useState(0);
   const [hasSubmittedThisRound, setHasSubmittedThisRound] = useState(false);
   const [hasSubmittedImage, setHasSubmittedImage] = useState<string | null>(null);
+  const [isInviteLink, setIsInviteLink] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -137,6 +138,7 @@ function App() {
     const roomParam = params.get('room');
     if (roomParam) {
       setRoomCode(roomParam.toUpperCase());
+      setIsInviteLink(true);
       setView('join');
     }
   }, []);
@@ -546,7 +548,7 @@ function App() {
 
       {view === 'join' && (
         <div className="glass-panel flex-col">
-          <button className="btn-secondary" style={{ width: 'auto', alignSelf: 'flex-start', padding: '8px 12px', marginBottom: '16px' }} onClick={() => setView('landing')}><ArrowLeft size={20} /> Back</button>
+          {!isInviteLink && <button className="btn-secondary" style={{ width: 'auto', alignSelf: 'flex-start', padding: '8px 12px', marginBottom: '16px' }} onClick={() => setView('landing')}><ArrowLeft size={20} /> Back</button>}
           <h2 className="title-giant" style={{ fontSize: '3rem' }}>JOIN</h2>
           <input type="text" className="input-field mb-4" placeholder="ROOM CODE" maxLength={6} value={roomCode} onChange={(e) => setRoomCode(e.target.value.toUpperCase())} />
           <input type="text" className="input-field mb-8" placeholder="YOUR NAME" maxLength={12} value={playerName} onChange={(e) => setPlayerName(e.target.value)} />

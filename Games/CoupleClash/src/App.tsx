@@ -102,6 +102,7 @@ function App() {
   const [isHostUser, setIsHostUser] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [errorTiles, setErrorTiles] = useState<Set<number>>(new Set());
+  const [isInviteLink, setIsInviteLink] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
   const viewRef = useRef(view);
@@ -116,6 +117,7 @@ function App() {
     const roomParam = params.get('room');
     if (roomParam) {
       setRoomCode(roomParam.toUpperCase());
+      setIsInviteLink(true);
       // No need to set view to join manually as landing has the room input
     }
   }, []);
@@ -321,9 +323,11 @@ function App() {
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
           />
-          <button className="btn btn-primary" style={{ width: '100%', marginBottom: '1rem' }} onClick={handleCreateRoom}>
-            <Play size={20} /> Create Room
-          </button>
+          {!isInviteLink && (
+            <button className="btn btn-primary" style={{ width: '100%', marginBottom: '1rem' }} onClick={handleCreateRoom}>
+              <Play size={20} /> Create Room
+            </button>
+          )}
           <div className="input-group" style={{ marginBottom: '1rem' }}>
             <input
               className="subtitle"
