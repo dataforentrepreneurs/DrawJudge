@@ -7,7 +7,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.sahai.partygameshub"
+    namespace = "ai.d4e.play"
     compileSdk = rootProject.ext.compileSdkVersion
     
     signingConfigs {
@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.sahai.partygameshub"
+        applicationId "ai.d4e.play"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

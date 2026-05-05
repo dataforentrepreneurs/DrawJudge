@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.sahai.partygameshub',
+  appId: 'ai.d4e.play',
   appName: 'Party Games Hub',
   webDir: 'dist',
   server: {
