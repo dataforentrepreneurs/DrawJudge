@@ -38,11 +38,11 @@ function App() {
 
   return (
     <div className="launcher-container">
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-        <img src="/logo.png" alt="Company Logo" style={{ height: '80px', width: 'auto' }} />
-        <div style={{ textAlign: 'left' }}>
-          <h1 style={{ margin: 0 }}>Party Games Hub</h1>
-          <p style={{ margin: 0, opacity: 0.8 }}>Select a game to start playing</p>
+      <header style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '3rem' }}>
+        <img src="/logo.png" alt="Company Logo" style={{ height: '140px', width: 'auto', marginBottom: '1rem', filter: 'drop-shadow(0 0 15px rgba(243, 156, 18, 0.4))' }} />
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ margin: '0 0 8px 0', fontSize: '4.5rem' }}>Party Games Hub</h1>
+          <p style={{ margin: 0, opacity: 0.8, fontSize: '1.5rem' }}>Select a game to start playing</p>
         </div>
       </header>
 
@@ -56,9 +56,10 @@ function App() {
             go('/drawjudge/index.html')
           }}
           onKeyDown={(e) => onCardKeyDown(e, '/drawjudge/index.html')}
+          style={{ width: '450px' }}
         >
-          <div className="card-image drawjudge-img">
-            <span>🎨</span>
+          <div className="card-image drawjudge-img" style={{ height: '250px' }}>
+            <span style={{ fontSize: '6rem' }}>🎨</span>
           </div>
           <div className="card-content">
             <h2>Draw Judge</h2>
@@ -75,9 +76,10 @@ function App() {
             go('/coupleclash/index.html')
           }}
           onKeyDown={(e) => onCardKeyDown(e, '/coupleclash/index.html')}
+          style={{ width: '450px' }}
         >
-          <div className="card-image coupleclash-img" style={{ background: 'linear-gradient(135deg, var(--blue-team) 0%, var(--pink-team) 100%)' }}>
-            <span>🎯</span>
+          <div className="card-image coupleclash-img" style={{ height: '250px', background: 'linear-gradient(135deg, var(--blue-team) 0%, var(--pink-team) 100%)' }}>
+            <span style={{ fontSize: '6rem' }}>🎯</span>
           </div>
           <div className="card-content">
             <h2>Couple Clash</h2>

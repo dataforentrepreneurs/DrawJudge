@@ -21,3 +21,4 @@ feature_graphic = banner.crop(crop_box)
 feature_graphic = feature_graphic.resize((1024, 500), Image.Resampling.LANCZOS)
 feature_graphic.save(feature_graphic_path)
 print(f"Feature Graphic (1024x500) generated at {feature_graphic_path}")
+

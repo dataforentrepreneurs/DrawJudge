@@ -573,7 +573,7 @@ function App() {
 
       {/* Persistent Room Code on Host screen */}
       {isHostUser && view !== 'landing' && view !== 'join' && view !== 'hostLobby' && (
-        <div className="glass-panel text-center flex-row" style={{ position: 'absolute', top: '16px', left: '16px', padding: '12px 24px', zIndex: 50, border: '2px solid var(--primary)', alignItems: 'center', gap: '16px' }}>
+        <div className="glass-panel text-center flex-row" style={{ display: 'inline-flex', alignSelf: 'flex-start', margin: '16px', padding: '12px 24px', zIndex: 50, border: '2px solid var(--primary)', alignItems: 'center', gap: '16px' }}>
           <div style={{ background: 'white', padding: '4px', borderRadius: '8px' }}>
             <QRCodeSVG value={backendConfig.getJoinUrl(roomCode)} size={60} />
           </div>
