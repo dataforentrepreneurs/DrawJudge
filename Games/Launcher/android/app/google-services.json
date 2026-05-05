@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "357563926515",
+    "project_id": "party-games-hub-d4eai",
+    "storage_bucket": "party-games-hub-d4eai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357563926515:android:bcf1aa19df527dda5d3486",
+        "android_client_info": {
+          "package_name": "ai.d4e.play"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxZbzr2POFvFTy3pNvKQwxOllztk5iFjg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
