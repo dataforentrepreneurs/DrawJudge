@@ -335,7 +335,7 @@ body {
   }
   
   .title-giant {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   .subtitle {
@@ -348,6 +348,11 @@ body {
   
   .input-group {
     flex-direction: column;
+  }
+  
+  .game-grid {
+    gap: 8px;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
   }
   
   .input-group-row {
