@@ -4,6 +4,14 @@ import './App.css'
 function App() {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
+  // Background wake-up for Render server
+  useEffect(() => {
+    fetch('https://play.d4e.ai/api/health')
+      .then(res => res.json())
+      .then(data => console.log('Server wake-up complete:', data))
+      .catch(err => console.log('Server wake-up ping failed (expected if waking from deep sleep):', err));
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Android TV "Back" button often maps to Escape or Backspace in WebViews
