@@ -11,6 +11,9 @@ import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+import asyncio
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routers import rooms, game, couple_clash
@@ -33,7 +36,30 @@ if SENTRY_DSN and IS_PRODUCTION:
     )
     logger.info("Sentry initialized in production mode")
 
-app = FastAPI(title="Party Games Hub API")
+# Import Background Agents
+from agents.monitoring_agent import monitor_rooms_loop
+from agents.ai_ops_agent import consume_anomaly_queue
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting Operational AI Services...")
+    monitor_task = asyncio.create_task(monitor_rooms_loop())
+    ai_ops_task = asyncio.create_task(consume_anomaly_queue())
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down Operational AI Services...")
+    monitor_task.cancel()
+    ai_ops_task.cancel()
+    try:
+        await monitor_task
+        await ai_ops_task
+    except asyncio.CancelledError:
+        pass
+
+app = FastAPI(title="Party Games Hub API", lifespan=lifespan)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):

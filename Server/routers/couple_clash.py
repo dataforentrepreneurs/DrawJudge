@@ -4,6 +4,7 @@ from services.couple_clash_service import get_couple_clash_state, create_couple_
 import json
 import time
 import asyncio
+from services.event_logger import log_game_event
 
 router = APIRouter(tags=["CoupleClash"])
 
@@ -38,6 +39,8 @@ async def websocket_endpoint(
         if room_code not in manager.active_connections:
             manager.active_connections[room_code] = {}
         manager.active_connections[room_code][player_id] = websocket
+        
+        log_game_event(room_code, "CoupleClash", "websocket_connected", user_id=player_id)
 
         print(f"DEBUG: Sending Initial Sync to {name}")
         # Initial Sync
@@ -213,6 +216,7 @@ async def websocket_endpoint(
     except WebSocketDisconnect:
         print(f"DEBUG: {name} disconnected normally.")
         manager.disconnect(room_code, player_id)
+        log_game_event(room_code, "CoupleClash", "websocket_disconnected", user_id=player_id)
         if player_id in room.player_presence:
             room.player_presence[player_id]["connected"] = False
         await manager.broadcast_to_room(room_code, {
@@ -225,4 +229,5 @@ async def websocket_endpoint(
         print(f"DEBUG: CRASH for {name}: {e}")
         traceback.print_exc()
         manager.disconnect(room_code, player_id)
+        log_game_event(room_code, "CoupleClash", "websocket_disconnected_error", user_id=player_id)
 

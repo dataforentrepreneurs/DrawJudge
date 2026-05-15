@@ -10,3 +10,4 @@ redis
 fakeredis
 posthog
 sentry-sdk[fastapi]
+httpx

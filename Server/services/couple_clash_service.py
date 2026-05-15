@@ -6,6 +6,8 @@ import json
 import os
 import random
 
+from services.event_logger import log_game_event
+
 # Optional redis import for graceful degrade
 try:
     import redis
@@ -182,6 +184,7 @@ class CoupleClashRoomState:
             }
         self.player_presence[player_id] = {"connected": True, "last_seen": time.time()}
         self.save()
+        log_game_event(self.room_code, "CoupleClash", "player_joined", user_id=player_id, details={"name": name})
         return player_id
 
     def generate_board(self, starting_team: str = "blue"):
@@ -220,6 +223,7 @@ class CoupleClashRoomState:
         self.turn_started_at = time.time()
         self.winner = None
         self.save()
+        log_game_event(self.room_code, "CoupleClash", "board_generated", details={"starting_team": starting_team})
 
     def reroll_tile(self, tile_id: int):
         """Replaces a tile's image with a new keyword from the pool."""
@@ -249,6 +253,7 @@ class CoupleClashRoomState:
             self.turn_phase = TurnPhase.GUESSING
             self.votes = {}
             self.save()
+            log_game_event(self.room_code, "CoupleClash", "clue_submitted", details={"word": word, "number": number})
 
     def reveal_tile(self, tile_id: int) -> Dict[str, Any]:
         if self.turn_phase != TurnPhase.GUESSING or self.is_revealing:
@@ -298,6 +303,7 @@ class CoupleClashRoomState:
 
         self.is_revealing = False
         self.save()
+        log_game_event(self.room_code, "CoupleClash", "tile_revealed", details={"tile_id": tile_id, "type": tile.type, "game_over": result["game_over"]})
         return result
 
     def end_turn(self):
@@ -386,6 +392,7 @@ def create_couple_clash_room() -> CoupleClashRoomState:
     room = CoupleClashRoomState(room_code, host_id)
     active_couple_clash_rooms[room_code] = room
     save_couple_clash_state(room)
+    log_game_event(room_code, "CoupleClash", "room_created", user_id=host_id)
     return room
 
 def get_couple_clash_state(room_code: str) -> Optional[CoupleClashRoomState]:

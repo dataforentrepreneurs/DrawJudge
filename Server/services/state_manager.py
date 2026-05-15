@@ -5,6 +5,8 @@ import time
 import json
 import os
 
+from services.event_logger import log_game_event
+
 # Optional redis import for graceful degrade if not installed during tests
 try:
     import redis
@@ -47,6 +49,7 @@ class RoomState:
         self.players[player_id] = {"name": display_name, "score": 0}
         self.player_presence[player_id] = {"connected": True, "last_seen": time.time()}
         self.save()
+        log_game_event(self.room_code, "DrawJudge", "player_joined", user_id=player_id, details={"name": display_name})
         return player_id
         
     def start_round(self, prompt: str, mode: str = "classic", duration: int = 60):
@@ -59,6 +62,7 @@ class RoomState:
         self.round_end_time = time.time() + duration
         self.round_participants = list(self.players.keys())
         self.save()
+        log_game_event(self.room_code, "DrawJudge", "round_started", details={"round": self.current_round, "mode": mode, "duration": duration})
         
     def add_submission(self, player_id: str, image_data: str):
         if self.status == "drawing":
@@ -74,6 +78,7 @@ class RoomState:
         for player_id in self.players:
             self.players[player_id]["score"] = 0
         self.save()
+        log_game_event(self.room_code, "DrawJudge", "game_reset")
 
     def to_dict_lite(self) -> Dict[str, Any]:
         """Serializes the class but STRIPS all heavy Base64 image data to protect Redis single-key limits."""
@@ -191,6 +196,7 @@ def create_room_state() -> RoomState:
     room = RoomState(room_code, host_id)
     active_rooms[room_code] = room
     save_room_state(room)
+    log_game_event(room_code, "DrawJudge", "room_created", user_id=host_id)
     return room
 
 def get_room_state(room_code: str) -> Optional[RoomState]:

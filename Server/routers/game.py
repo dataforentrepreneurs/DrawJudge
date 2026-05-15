@@ -10,6 +10,7 @@ import random
 import time
 from services.analytics import track_event
 import sentry_sdk
+from services.event_logger import log_game_event
 
 # Attempt to load frontend .env for the API key if missing locally
 frontend_env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", ".env"))
@@ -172,6 +173,7 @@ async def websocket_endpoint(
     room.player_presence[player_id] = {"connected": True, "last_seen": time.time()}
 
     await manager.connect(room_code, player_id, websocket)
+    log_game_event(room_code, "DrawJudge", "websocket_connected", user_id=player_id)
 
     # Immediately send dedicated resume_state event to the player
     has_sub = player_id in room.submissions
@@ -351,6 +353,7 @@ async def websocket_endpoint(
                         
     except WebSocketDisconnect:
         manager.disconnect(room_code, player_id)
+        log_game_event(room_code, "DrawJudge", "websocket_disconnected", user_id=player_id)
         
         # Mark as disconnected instead of immediately assuming total loss of player
         if player_id in room.player_presence:
