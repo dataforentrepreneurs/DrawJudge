@@ -299,16 +299,16 @@ async def generate_creative_prompt(theme: str = "Family") -> str:
         client = get_gemini_client()
         model_name = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
         
-        instructions = f"You are a creative party game host. Generate exactly ONE very funny, highly unique DRAWING PROMPT for a drawing game. The theme for this round is '{theme}'.\n"
-        instructions += "CRITICAL RULE: The prompt MUST BE a maximum of 10-12 words long. Keep it short, punchy, and scenario-based. DO NOT WRITE PARAGRAPHS OR LONG SCENES.\n"
+        instructions = f"You are a creative party game host. Generate exactly ONE DRAWING PROMPT for a drawing game. The theme for this round is '{theme}'.\n"
+        instructions += "CRITICAL RULE: The prompt MUST BE extremely easy to understand and simple to draw for beginners. Use basic objects, simple actions, and everyday situations. Avoid complex abstract concepts or impossible scenarios. Maximum 5-8 words long.\n"
         if theme == "Couples":
-            instructions += "Make it about relatable relationship arguments, couple tropes, or slightly petty domestic situations (e.g., 'Arguing over the TV remote', 'Who forgot to take out the trash').\n"
+            instructions += "Make it about highly relatable and simple relationship situations (e.g., 'Watching TV together', 'Stealing the blankets').\n"
         elif theme == "Kids":
-            instructions += "Make it extremely family friendly, silly, and appealing to young kids (e.g., 'A pizza with eyeballs', 'A superhero duck').\n"
+            instructions += "Make it extremely easy, basic, and appealing to young kids (e.g., 'A happy dog', 'A flying pig').\n"
         elif theme == "Office":
-            instructions += "Make it about corporate life, annoyed coworkers, or relatable office chaos (e.g., 'The printer is jammed again', 'Zoom call in pajamas').\n"
+            instructions += "Make it about simple office life (e.g., 'Spilling coffee', 'Sleeping at desk').\n"
         else:
-            instructions += "Make it unexpected, slightly absurd, but very drawable. For example: 'A cat teaching a yoga class' or 'A toaster running for President'.\n"
+            instructions += "Make it slightly silly but very easy to draw. For example: 'A cat eating pizza' or 'A dancing banana'.\n"
 
         instructions += "ONLY return the prompt string itself, no quotes, no extra text."
         
