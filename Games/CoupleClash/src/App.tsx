@@ -68,11 +68,30 @@ const getDynamicHost = () => {
   return 'play.d4e.ai';
 };
 
+let memoryStorage: Record<string, string> = {};
+
+function safeGetItem(key: string) {
+  try {
+    return localStorage.getItem(key) || memoryStorage[key] || null;
+  } catch (e) {
+    return memoryStorage[key] || null;
+  }
+}
+
+function safeSetItem(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn("localStorage blocked, using memory.");
+  }
+  memoryStorage[key] = value;
+}
+
 function generatePlayerId() {
-  const existing = localStorage.getItem('cc_player_id');
+  const existing = safeGetItem('cc_player_id');
   if (existing) return existing;
   const newId = Math.random().toString(36).substring(2, 9);
-  localStorage.setItem('cc_player_id', newId);
+  safeSetItem('cc_player_id', newId);
   return newId;
 }
 
@@ -95,7 +114,7 @@ function App() {
 
   const [view, setView] = useState<'landing' | 'lobby' | 'game' | 'game_over'>('landing');
   const [roomCode, setRoomCode] = useState('');
-  const [playerName, setPlayerName] = useState(localStorage.getItem('cc_player_name') || '');
+  const [playerName, setPlayerName] = useState(safeGetItem('cc_player_name') || '');
   const [playerId, setPlayerId] = useState(generatePlayerId());
   const playerIdRef = useRef(playerId); // CRITICAL: Ref for WebSocket closure
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -155,6 +174,43 @@ function App() {
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (ws.current && ws.current.readyState !== WebSocket.OPEN && roomCode && playerId) {
+          console.log("Tab became visible, WebSocket is dead. Reconnecting...");
+          connectWebSocket(roomCode, playerId);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [roomCode, playerId]);
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (viewRef.current !== 'landing') {
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (viewRef.current !== 'landing') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   // --- WebSocket Logic ---
   const connectWebSocket = (code: string, overrideId?: string) => {
@@ -253,7 +309,7 @@ function App() {
       console.log("DEBUG: POST success. Received:", data);
 
       // CRITICAL: Store the host_id from the server so the WebSocket recognizes us as Host
-      localStorage.setItem('cc_player_id', data.host_id);
+      safeSetItem('cc_player_id', data.host_id);
       setPlayerId(data.host_id);
       playerIdRef.current = data.host_id; // Sync the Ref immediately!
 
@@ -268,7 +324,7 @@ function App() {
 
   const handleJoinRoom = () => {
     if (!roomCode || !playerName) return;
-    localStorage.setItem('cc_player_name', playerName);
+    safeSetItem('cc_player_name', playerName);
     connectWebSocket(roomCode);
   };
 

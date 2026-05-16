@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import posthog from 'posthog-js'
 import * as Sentry from '@sentry/react'
 import './index.css'
+import { setupTelemetry } from './telemetry'
+
+setupTelemetry('CoupleClash');
 import App from './App.tsx'
 
 const posthogKey = import.meta.env.VITE_POSTHOG_KEY;

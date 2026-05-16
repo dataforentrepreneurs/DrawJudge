@@ -2,6 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import posthog from 'posthog-js'
 import './index.css'
+import { setupTelemetry } from './telemetry'
+
+setupTelemetry('DrawJudge');
 import App from './App.tsx'
 
 const posthogKey = import.meta.env.VITE_POSTHOG_KEY;

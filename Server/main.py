@@ -16,7 +16,7 @@ import asyncio
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from routers import rooms, game, couple_clash
+from routers import rooms, game, couple_clash, telemetry
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO)
@@ -97,6 +97,7 @@ app.add_middleware(
 app.include_router(couple_clash.router)
 app.include_router(rooms.router, prefix="/api/drawjudge")
 app.include_router(game.router)
+app.include_router(telemetry.router)
 
 @app.get("/api/health")
 async def health_check():

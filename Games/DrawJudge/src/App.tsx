@@ -67,11 +67,30 @@ const getDynamicHost = () => {
   return 'play.d4e.ai';
 };
 
+let memoryStorage: Record<string, string> = {};
+
+function safeGetItem(key: string) {
+  try {
+    return localStorage.getItem(key) || memoryStorage[key] || null;
+  } catch (e) {
+    return memoryStorage[key] || null;
+  }
+}
+
+function safeSetItem(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn("localStorage blocked, using memory.");
+  }
+  memoryStorage[key] = value;
+}
+
 function generatePlayerId() {
-  const existing = localStorage.getItem('dj_player_id');
+  const existing = safeGetItem('dj_player_id');
   if (existing) return existing;
   const newId = Math.random().toString(36).substring(2, 9);
-  localStorage.setItem('dj_player_id', newId);
+  safeSetItem('dj_player_id', newId);
   return newId;
 }
 
@@ -92,7 +111,7 @@ function App() {
 
   const [view, setView] = useState<'landing' | 'join' | 'hostLobby' | 'playerLobby' | 'drawing' | 'judging' | 'results' | 'leaderboard'>('landing');
   const [roomCode, setRoomCode] = useState('');
-  const [playerName, setPlayerName] = useState(localStorage.getItem('dj_player_name') || '');
+  const [playerName, setPlayerName] = useState(safeGetItem('dj_player_name') || '');
   const [playerId, setPlayerId] = useState(generatePlayerId());
 
   const [players, setPlayers] = useState<{ id?: string, name: string, score: number }[]>([]);
@@ -176,6 +195,43 @@ function App() {
       setIsInviteLink(true);
       setView('join');
     }
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (ws.current && ws.current.readyState !== WebSocket.OPEN && roomCode && playerId) {
+          console.log("Tab became visible, WebSocket is dead. Reconnecting...");
+          connectWebSocket(roomCode, isHostUser, playerId);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [roomCode, isHostUser, playerId]);
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (viewRef.current !== 'landing' && viewRef.current !== 'join') {
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (viewRef.current !== 'landing' && viewRef.current !== 'join') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const connectWebSocket = (code: string, isHost: boolean, overridePlayerId: string) => {
@@ -450,8 +506,8 @@ function App() {
       setRoomCode(data.room_code);
       setPlayerId(data.host_id);
       setPlayerName("Host");
-      localStorage.setItem('dj_player_name', "Host");
-      localStorage.setItem('dj_player_id', data.host_id);
+      safeSetItem('dj_player_name', "Host");
+      safeSetItem('dj_player_id', data.host_id);
       connectWebSocket(data.room_code, true, data.host_id);
       setView('hostLobby');
       pushEvent('lobby_created', data.room_code, 'host', data.host_id, { player_count: 1 });
@@ -462,8 +518,8 @@ function App() {
 
   const submitJoin = () => {
     if (!roomCode || !playerName) return;
-    localStorage.setItem('dj_player_name', playerName);
-    localStorage.setItem('dj_player_id', playerId);
+    safeSetItem('dj_player_name', playerName);
+    safeSetItem('dj_player_id', playerId);
     connectWebSocket(roomCode, false, playerId);
     pushEvent('lobby_joined', roomCode, 'player', playerId);
     // Wait for the new resume_state payload to deliberately route the view instead of hardcoding 'playerLobby'

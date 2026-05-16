@@ -78,12 +78,24 @@ async def process_anomaly(anomaly_event: Dict[str, Any], event_id: str):
             break
 
     # 3. Analyze with Gemini
+    error_details = anomaly_event.get("error_details", "")
     prompt = f"""
     You are an expert Game Operations AI. Analyze the following anomaly for the multiplayer game {game}.
     
     Issue Type Detected: {issue_type}
     Room Code: {room_code}
+    """
     
+    if issue_type == "frontend_crash":
+        prompt += f"""
+    This is a CLIENT-SIDE FRONTEND CRASH.
+    Error Details / Stack Trace:
+    {error_details}
+    
+    Please determine why the client browser crashed or threw an unhandled exception based on the stack trace.
+    """
+    else:
+        prompt += f"""
     Recent Event Timeline (Chronological, Oldest to Newest):
     {json.dumps(events, indent=2)}
     
