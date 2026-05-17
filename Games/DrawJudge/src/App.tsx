@@ -211,7 +211,7 @@ function App() {
   }, [roomCode, isHostUser, playerId]);
 
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       if (viewRef.current !== 'landing' && viewRef.current !== 'join') {
         window.history.pushState(null, '', window.location.href);
       }

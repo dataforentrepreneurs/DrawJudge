@@ -48,15 +48,15 @@ async def check_drawjudge_rooms():
 
 async def check_coupleclash_rooms():
     current_time = time.time()
-    for room_code, room in list(cc_state.active_rooms.items()):
+    for room_code, room in list(cc_state.active_couple_clash_rooms.items()):
         try:
             anomaly_detected = False
             issue_type = None
             
             # Similar checks tailored for CoupleClash
-            if room.status in ["answering", "revealing", "judging"]:
+            if room.status in ["WAITING_FOR_CLUE", "GUESSING", "REVEALING"]:
                 # Assume a state shouldn't last more than 3 minutes generally
-                state_duration = current_time - room.current_state_start_time
+                state_duration = current_time - room.turn_started_at
                 if state_duration > 180:
                     anomaly_detected = True
                     issue_type = f"stuck_{room.status}_phase"

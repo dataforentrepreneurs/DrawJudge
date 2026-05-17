@@ -189,7 +189,7 @@ function App() {
   }, [roomCode, playerId]);
 
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       if (viewRef.current !== 'landing') {
         window.history.pushState(null, '', window.location.href);
       }
@@ -457,7 +457,7 @@ function App() {
             <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', display: 'inline-block', boxShadow: '0 0 30px rgba(255,255,255,0.1)' }}>
               <QRCodeSVG value={backendConfig.getJoinUrl(roomCode)} size={200} />
             </div>
-            
+
             <div className="w-full text-left mt-4 p-4" style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', border: '1px solid hsla(0,0%,100%,0.1)' }}>
               <h3 style={{ color: 'var(--blue-team)', marginBottom: '8px', fontWeight: 'bold' }}>How to Play</h3>
               <ol style={{ textAlign: 'left', display: 'inline-block', margin: 0, paddingLeft: '1.5rem', opacity: 0.9, fontSize: '0.9rem', lineHeight: '1.6' }}>
