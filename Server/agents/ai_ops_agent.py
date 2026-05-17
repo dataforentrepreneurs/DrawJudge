@@ -31,7 +31,8 @@ class AnomalyAnalysis(BaseModel):
     recommended_action: str = Field(description="Action the operator or system should take to resolve.")
     user_impact: str = Field(description="How this is currently affecting the players in the room.")
 
-def setup_consumer_group():
+def _setup_consumer_group_sync():
+    """Synchronous helper - must be called via asyncio.to_thread."""
     if not redis_client:
         return
     try:
@@ -41,6 +42,9 @@ def setup_consumer_group():
     except Exception as e:
         if "BUSYGROUP Consumer Group name already exists" not in str(e):
             logger.error(f"Failed to create consumer group: {e}")
+
+async def setup_consumer_group():
+    await asyncio.to_thread(_setup_consumer_group_sync)
 
 async def process_anomaly(anomaly_event: Dict[str, Any], event_id: str):
     room_code = anomaly_event.get("room_code")
@@ -147,20 +151,24 @@ async def process_anomaly(anomaly_event: Dict[str, Any], event_id: str):
         logger.error(f"AI Ops Agent failed to analyze anomaly for {room_code}: {e}", exc_info=True)
 
 
+def _xreadgroup_sync(streams: dict) -> list:
+    """Synchronous helper for the blocking xreadgroup call - must be called via asyncio.to_thread."""
+    return redis_client.xreadgroup(CONSUMER_GROUP, CONSUMER_NAME, streams, count=1, block=5000)
+
 async def consume_anomaly_queue():
     if not redis_client:
         logger.warning("Redis not available. AI Ops Agent will not start.")
         return
         
-    setup_consumer_group()
+    await setup_consumer_group()
     logger.info("Starting AI Ops Agent Consumer...")
     
     while True:
         try:
-            # Block for up to 5000ms waiting for a new message
-            # Format: xreadgroup(groupname, consumername, streams, count=None, block=None)
+            # Block for up to 5000ms waiting for a new message via a thread
+            # so the async event loop is NOT blocked during the wait.
             streams = {ANOMALY_QUEUE_KEY: '>'}
-            messages = redis_client.xreadgroup(CONSUMER_GROUP, CONSUMER_NAME, streams, count=1, block=5000)
+            messages = await asyncio.to_thread(_xreadgroup_sync, streams)
             
             if messages:
                 for stream_name, events in messages:
@@ -175,7 +183,7 @@ async def consume_anomaly_queue():
                         await process_anomaly(decoded_event, event_id.decode('utf-8') if isinstance(event_id, bytes) else event_id)
                         
                         # Acknowledge message so it doesn't stay in PEL
-                        redis_client.xack(ANOMALY_QUEUE_KEY, CONSUMER_GROUP, event_id)
+                        await asyncio.to_thread(redis_client.xack, ANOMALY_QUEUE_KEY, CONSUMER_GROUP, event_id)
                         
         except asyncio.CancelledError:
             logger.info("AI Ops Agent Consumer shutting down.")
