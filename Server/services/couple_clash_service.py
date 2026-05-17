@@ -21,28 +21,36 @@ MODE_KEYWORDS = {
         "Pizza", "Bicycle", "Beach with umbrella", "Snow-capped mountain", "Hot beverage", "Guitar", "Elephant", "Airplane",
         "Camera", "Umbrella", "Sunflower", "Bridge at night", "Books", "Deciduous tree", "Desert", "Water wave",
         "Statue of liberty", "Shopping cart", "Castle", "Office building", "Locomotive", "Ship", "Desert island", "Volcano", "Milky way",
-        "Robot", "Woman scientist", "Woman cook", "Woman health worker", "Woman astronaut", "Woman firefighter", "Woman police officer", "Woman teacher"
+        "Robot", "Woman scientist", "Woman cook", "Woman health worker", "Woman astronaut", "Woman firefighter", "Woman police officer", "Woman teacher",
+        "Banana", "Grapes", "Watermelon", "Strawberry", "Hamburger", "French fries", "Taco", "Sushi", "Doughnut", "Cookie", "Mushroom", "Carrot", "Avocado", "Pretzel", "Pancakes", "Waffle", "Bacon", "Egg", "Cheese wedge",
+        "Cactus", "Rose", "Tulip", "Four leaf clover", "Maple leaf", "Globe showing Americas", "Mount fuji", "Camping", "Tent",
+        "Dog", "Cat", "Mouse", "Hamster", "Rabbit", "Fox", "Bear", "Panda", "Koala", "Tiger", "Lion", "Cow", "Pig", "Frog", "Monkey", "Chicken", "Penguin", "Bird", "Baby chick", "Duck", "Eagle", "Owl", "Bat", "Wolf", "Boar", "Horse", "Unicorn", "Bee", "Bug", "Butterfly", "Snail", "Turtle", "Snake", "Dolphin", "Whale", "Fish",
+        "Alarm clock", "Stopwatch", "Hourglass not done", "Thermometer", "Umbrella with rain drops", "Balloon", "Party popper", "Confetti ball", "Magic wand", "Microscope", "Telescope", "Satellite antenna", "Light bulb", "Flashlight", "Battery", "Electric plug", "Laptop", "Desktop computer", "Printer", "Computer mouse", "Trackball", "Television"
     ],
     "couples": [
         "Wedding", "Ring", "Heart with ribbon", "Kiss mark", "Rose", "Wine glass", "Fork and knife", "Luggage", "Two hearts", 
         "Sunset", "Beach with umbrella", "Couch and lamp", "Champagne glass", "Wrapped gift", "Candle", "Musical note", "Love letter", "Locked with Heart", "Ferris wheel", 
-        "Basket", "Woman dancing", "Handshake", "Hourglass done", "Sparkler", "Chocolate bar", "Fire", "Sparkles", "Smiling face with hearts"
+        "Basket", "Woman dancing", "Handshake", "Hourglass done", "Sparkler", "Chocolate bar", "Fire", "Sparkles", "Smiling face with hearts",
+        "Couple with heart", "Kiss", "Bouquet", "Gift", "Ribbon", "Sparkling heart", "Growing heart", "Heart with arrow", "Revolving hearts", "Beating heart", "Broken heart", "Red heart", "Orange heart", "Yellow heart", "Green heart", "Blue heart", "Purple heart", "Brown heart", "Black heart", "White heart", "Lipstick", "Nail polish", "Dizzy", "Star", "Glowing star", "Shooting star", "Comet", "Sun behind small cloud", "Sun behind large cloud", "Rainbow", "High-heeled shoe", "Dress", "T-shirt", "Jeans", "Crown", "Gem stone", "Muted speaker", "Speaker high volume", "Loudspeaker", "Megaphone", "Postal horn", "Bell", "Bell with slash", "Musical score", "Musical notes", "Microphone", "Headphone", "Radio", "Saxophone", "Musical keyboard", "Trumpet", "Violin", "Drum", "Mobile phone", "Telephone", "Pager", "Fax machine", "Computer disk", "Floppy disk", "Optical disk", "DVD", "Abacus", "Cinema", "Film projector", "Man dancing", "People hugging", "Family", "Gemini", "Crescent moon", "Heart on fire", "Mending heart", "Love-you gesture", "Hand with fingers splayed"
     ],
     "movies": [
         "Movie camera", "Man dancing", "Woman dancing", "Sari", "Popcorn", "Video camera", "Clapper board", "Direct Hit", "Scroll", "Performing arts", 
         "Studio Light", "Person supervillain", "Person superhero", "Musical score", "Star", "Admission tickets", "Trophy", "Hand with fingers splayed", "Sunglasses", 
-        "Lipstick", "Artist palette", "Crown", "Gem stone", "Fire", "Person wearing turban", "Elephant", "Tiger", "Peacock", "Lotus"
+        "Lipstick", "Artist palette", "Crown", "Gem stone", "Fire", "Person wearing turban", "Elephant", "Tiger", "Peacock", "Lotus",
+        "Film projector", "Television", "Camera", "Camera with flash", "Ticket", "Cup with straw", "Hot dog", "Pretzel", "Pizza", "Hamburger", "French fries", "Mushroom", "Bone", "Poultry leg", "Meat on bone", "Sparkler", "Firecracker", "Collision", "Dizzy", "Glowing star", "Sports medal", "First place medal", "Military medal", "Chart increasing", "Loudspeaker", "Megaphone", "Microphone", "Headphone", "Radio", "Videocassette", "Laptop", "Computer mouse", "Printer", "Desktop computer", "Floppy disk", "Optical disk", "DVD", "Control knobs", "Level slider", "Balance scale", "Crossed swords", "Shield", "Bow and arrow", "Dagger", "Water pistol", "Pistol", "Bomb", "Rocket", "Flying saucer", "Alien monster", "Alien", "Ghost", "Skull", "Skull and crossbones", "Jack-o-lantern", "Ogre", "Goblin", "Vampire", "Zombie", "Mage", "Fairy", "Merperson", "Elf", "Genie", "Ninja", "Detective", "Pirate flag", "Superhero", "Supervillain", "Clown face"
     ],
     "kids": [
         "Cat", "Dog", "Red apple", "Sun with face", "Full moon", "Glowing star", "Soccer ball", "Automobile", "Evergreen tree", "House", 
         "Hibiscus", "Bird", "Teddy bear", "Baby chick", "Balloon", "Birthday cake", "Ice cream", "Butterfly", "Tropical fish", "Rainbow", 
-        "Elephant", "Lion", "Rabbit", "Bear", "Duck", "Monkey", "Giraffe", "Zebra", "Turtle"
+        "Elephant", "Lion", "Rabbit", "Bear", "Duck", "Monkey", "Giraffe", "Zebra", "Turtle",
+        "Baby", "Child", "Boy", "Girl", "Party popper", "Confetti ball", "Magic wand", "Firecracker", "Sparkler", "Doll", "Yo-yo", "Kite", "Water pistol", "Spool of thread", "Yarn", "Safety pin", "Broom", "Basket", "Roll of paper", "Soap", "Sponge", "Bathtub", "Bed", "Door", "Chair", "Toilet", "Shower", "Couch and lamp", "Toothbrush", "Roller skate", "Skateboard", "Kick scooter", "Motor scooter", "Bicycle", "Helicopter", "Airplane", "Rocket", "Flying saucer", "Ambulance", "Fire engine", "Police car", "Taxi", "Sport utility vehicle", "Delivery truck", "Tractor", "Racing car", "Motorcycle", "Manual wheelchair", "Motorized wheelchair", "Cableway", "Suspension railway", "Mountain railway", "Tram", "Minibus", "Bus", "Trolleybus", "Articulated lorry", "School", "Hospital", "Bank", "Convenience store", "Factory", "Castle", "Tent", "Ferris wheel", "Roller coaster", "Carousel horse", "Jigsaw", "Game die", "Video game", "Puzzle piece"
     ],
     "bollywood_real": [
         "Shah Rukh Khan", "Salman Khan", "Deepika Padukone", "Amitabh Bachchan", "Aamir Khan", "Gabbar Singh", "Sholay", "3 Idiots", 
         "Alia Bhatt", "Priyanka Chopra", "Rajinikanth", "Kareena Kapoor", "Hrithik Roshan", "Akshay Kumar", "Katrina Kaif", 
         "Ranveer Singh", "Ranbir Kapoor", "Anushka Sharma", "Varun Dhawan", "Madhuri Dixit", "Sridevi", "Kajol", "Rishi Kapoor", 
-        "Dev Anand", "Lagaan", "Dangal", "Bahubali"
+        "Dev Anand", "Lagaan", "Dangal", "Bahubali", "Dharmendra", "Anil Kapoor", "Ajay Devgn", "Saif Ali Khan", "Shahid Kapoor", "Tiger Shroff", "Manoj Bajpayee", "Nawazuddin Siddiqui", "Pankaj Tripathi", "Bhumi Pednekar", "Radhika Apte", "Sonam Kapoor",
+        "Ayushmann Khurrana", "Sushant Singh Rajput", "Kangana Ranaut", "Vicky Kaushal", "Rajkummar Rao", "Taapsee Pannu", "Hema Malini", "Rekha", "Karisma Kapoor", "Juhi Chawla", "Preity Zinta", "Rani Mukerji", "Dilwale Dulhania Le Jayenge"
     ]
 }
 
@@ -74,6 +82,31 @@ RELIABLE_IMAGE_MAP = {
     "Lagaan": "https://upload.wikimedia.org/wikipedia/en/b/b6/Lagaan.jpg",
     "Dangal": "https://upload.wikimedia.org/wikipedia/en/9/99/Dangal_Poster.jpg",
     "Bahubali": "https://upload.wikimedia.org/wikipedia/en/5/5f/Baahubali_The_Beginning_poster.jpg",
+    "Dharmendra": "https://static.tvmaze.com/uploads/images/original_untouched/477/1194916.jpg",
+    "Anil Kapoor": "https://static.tvmaze.com/uploads/images/original_untouched/162/406690.jpg",
+    "Ajay Devgn": "https://static.tvmaze.com/uploads/images/original_untouched/141/353724.jpg",
+    "Saif Ali Khan": "https://static.tvmaze.com/uploads/images/original_untouched/141/353725.jpg",
+    "Shahid Kapoor": "https://static.tvmaze.com/uploads/images/original_untouched/450/1126135.jpg",
+    "Tiger Shroff": "https://static.tvmaze.com/uploads/images/original_untouched/115/287859.jpg",
+    "Manoj Bajpayee": "https://static.tvmaze.com/uploads/images/original_untouched/210/525943.jpg",
+    "Nawazuddin Siddiqui": "https://static.tvmaze.com/uploads/images/original_untouched/141/353730.jpg",
+    "Pankaj Tripathi": "https://static.tvmaze.com/uploads/images/original_untouched/248/621163.jpg",
+    "Bhumi Pednekar": "https://static.tvmaze.com/uploads/images/original_untouched/611/1528297.jpg",
+    "Radhika Apte": "https://static.tvmaze.com/uploads/images/original_untouched/160/401386.jpg",
+    "Sonam Kapoor": "https://static.tvmaze.com/uploads/images/original_untouched/107/268006.jpg",
+    "Ayushmann Khurrana": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Ayushmann_Khurrana_snapped_promoting_his_upcoming_movie_Chandigarh_Kare_Aashiqui_%28cropped%29.jpg",
+    "Sushant Singh Rajput": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Sushant_Singh_Rajput_at_the_Filmfare_Awards_2017.jpg",
+    "Kangana Ranaut": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Kangana_Ranaut.jpg",
+    "Vicky Kaushal": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Vicky_Kaushal_promoting_Zara_Hatke_Zara_Bachke.jpg",
+    "Rajkummar Rao": "https://upload.wikimedia.org/wikipedia/commons/3/30/Rajkummar_Rao_promoting_Monica_O_My_Darling.jpg",
+    "Taapsee Pannu": "https://upload.wikimedia.org/wikipedia/commons/d/da/Taapsee_Pannu_snapped_in_the_city.jpg",
+    "Hema Malini": "https://upload.wikimedia.org/wikipedia/commons/9/90/Hema_Malini_2011.jpg",
+    "Rekha": "https://upload.wikimedia.org/wikipedia/commons/1/15/Rekha.jpg",
+    "Karisma Kapoor": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Karisma_Kapoor_grace_the_Miss_India_finale_2024.jpg",
+    "Juhi Chawla": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Juhi_Chawla_grace_the_trailer_launch_of_Sharmaji_Namkeen.jpg",
+    "Preity Zinta": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Preity_Zinta_Walks_The_Ramp_At_Lakme_Fashion_Week.jpg",
+    "Rani Mukerji": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Rani_Mukerji_at_Indian_Film_Festival_of_Melbourne_2024_%28cropped%29.jpg",
+    "Dilwale Dulhania Le Jayenge": "https://upload.wikimedia.org/wikipedia/en/8/80/Dilwale_Dulhania_Le_Jayenge_poster.jpg"
 }
 
 def get_emoji_url(keyword: str) -> str:
